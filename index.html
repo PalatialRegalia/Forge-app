@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Forge">
+    <meta name="theme-color" content="#111111">
+
+    <!-- Embedded Sleek Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E">
+
+    <!-- Embedded PWA Manifest -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{%22name%22:%20%22Forge%20Kinetic%22,%20%22short_name%22:%20%22Forge%22,%20%22display%22:%20%22standalone%22,%20%22background_color%22:%20%22%230a0a0a%22,%20%22theme_color%22:%20%22%23111111%22,%20%22icons%22:%20[{%22src%22:%20%22data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E%22,%20%22sizes%22:%20%22512x512%22,%20%22type%22:%20%22image/svg+xml%22,%20%22purpose%22:%20%22any%20maskable%22}]}">
+
+    <title>Forge Kinetic</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #1c1c1e;
+            --primary: #e63946;
+            --primary-dim: rgba(230, 57, 70, 0.2);
+            --text: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --border: #27272a;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 100px; user-select: none; }
+
+        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .header-icon { width: 24px; height: 24px; }
+        header h2 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
+        .progress-indicator { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        .controls { display: flex; gap: 10px; padding: 20px; justify-content: center; }
+        select { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 1rem; flex: 1; max-width: 300px; outline: none; appearance: none; text-align: center; }
+
+        .card-container { padding: 15px; max-width: 500px; margin: 0 auto; }
+        .card { background: var(--surface); border-radius: 16px; padding: 24px; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid var(--border); }
+        .card.active { display: block; animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .exercise-title { margin: 0; font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+        .exercise-origin { font-size: 1.5rem; background: var(--bg); padding: 8px; border-radius: 12px; }
+
+        .adjuster-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .adjuster { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); }
+        .adj-label { font-weight: 600; color: var(--text-muted); width: 60px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;}
+        .adj-controls { display: flex; align-items: center; gap: 15px; }
+        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .adj-btn:active { background: var(--primary-dim); color: var(--primary); border-color: var(--primary); }
+        .adj-val { font-size: 1.4rem; font-weight: 700; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
+
+        .cues { background: var(--bg); padding: 16px; border-radius: 12px; font-size: 1rem; line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--primary); }
+
+        .actions { display: flex; gap: 12px; margin-top: 24px; }
+        button.action-btn { flex: 1; padding: 18px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+        button.action-btn:active { transform: scale(0.97); }
+        .btn-skip { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        .btn-done { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); }
+        .btn-export { background: #2a9d8f; color: #fff; margin-top: 15px; width: 100%; box-shadow: 0 4px 15px rgba(42, 157, 143, 0.3); }
+
+        .sticky-timer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        .timer-info { display: flex; flex-direction: column; }
+        .timer-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .timer-display { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; margin-top: 4px;}
+        .timer-controls { display: flex; gap: 8px; }
+
+        .summary-stats { display: flex; gap: 10px; margin: 20px 0; text-align: center; }
+        .stat-box { flex: 1; background: var(--bg); padding: 12px 5px; border-radius: 12px; border: 1px solid var(--border); }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; }
+
+        .summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--bg); border-radius: 12px; overflow: hidden; }
+        .summary-table th, .summary-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        .summary-table th { background: var(--surface); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
+
+        @keyframes slideIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E" class="header-icon" alt="Forge Icon">
+        <div>
+            <h2>FORGE KINETIC</h2>
+            <div class="progress-indicator" id="progressIndicator">Setup</div>
+        </div>
+    </header>
+
+    <div class="controls" id="topControls">
+        <select id="workoutDay" onchange="startWorkout()">
+            <option value="A">Day A (Forge Heavy)</option>
+            <option value="B">Day B (Flow Volume)</option>
+        </select>
+    </div>
+
+    <div class="card-container" id="cardContainer">
+        <!-- Cards injected via JS -->
+    </div>
+
+    <div class="sticky-timer">
+        <div class="timer-info">
+            <span class="timer-label" id="timerLabel">Workout Time</span>
+            <span class="timer-display" id="timeDisplay">00:00</span>
+        </div>
+        <div class="timer-controls" id="timerControls">
+            <button class="action-btn btn-skip" style="padding: 12px 20px; font-size:1rem;" onclick="addRest(60)">Rest 60s</button>
+        </div>
+    </div>
+
+    <script>
+        const exercises = {
+            mace: { id: "mace", title: "Mace 360°", origin: "🇮🇷", cues: "Slow tempo. Rotation GOAT. Keep ribs down.", sets: 3, reps: 10, weight: 5, isAdjustable: true },
+            shiko: { id: "shiko", title: "Heel Shiko Squat", origin: "🇯🇵", cues: "Goblet hold, heels 2-3\" elevated. Quarter ROM.", sets: 4, reps: 12, weight: 30, isAdjustable: true },
+            danda: { id: "danda", title: "DB Danda", origin: "🇮🇳", cues: "DB back, knees down OK. Flow rhythm.", sets: 4, reps: 15, weight: 10, isAdjustable: true },
+            goblet: { id: "goblet", title: "Partial Goblet", origin: "🇨🇳", cues: "90° knee max. Slow eccentric.", sets: 4, reps: 10, weight: 30, isAdjustable: true },
+            bethak: { id: "bethak", title: "Assisted Bethak", origin: "🇮🇳", cues: "Rack hold + wall assist. Partial ROM.", sets: 4, reps: 20, weight: 30, isAdjustable: true },
+            breath: { id: "breath", title: "KB Breath Pyramid", origin: "🇷🇺", cues: "Seated, 4-4-4-4 cycle. 8 min total.", sets: 1, reps: "8m", weight: 20, isAdjustable: false },
+            reset: { id: "reset", title: "Kinetic Daily Reset", origin: "🧬", cues: "90-90 Hip Lift (3x10/s), Short Foot (3x30s), Wall Angels (3x10)", sets: 1, reps: "10m", weight: "BW", isAdjustable: false }
+        };
+
+        const workouts = {
+            A: ['reset', 'mace', 'shiko', 'danda', 'breath'],
+            B: ['reset', 'goblet', 'bethak', 'mace', 'breath']
+        };
+
+        let currentCardIndex = 0;
+        let currentWorkout = [];
+        let activeReps = 0;
+        let activeWeight = 0;
+
+        let sessionLog = [];
+        let workoutStartTime = 0;
+        let totalRestMs = 0; 
+        let isResting = false;
+        let currentRestStartMs = 0;
+        let currentRestTargetMs = 0;
+        let timerInterval = null;
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) { console.log('Wake Lock failed:', err); }
+        }
+
+        function startWorkout() {
+            const day = document.getElementById('workoutDay').value;
+            currentWorkout = workouts[day];
+            currentCardIndex = 0;
+            sessionLog = [];
+
+            workoutStartTime = Date.now();
+            totalRestMs = 0;
+            isResting = false;
+            currentRestStartMs = 0;
+            currentRestTargetMs = 0;
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(onTick, 500); 
+
+            requestWakeLock();
+            renderCurrentCard();
+        }
+
+        function addRest(seconds) {
+            const now = Date.now();
+            if (isResting) {
+                currentRestTargetMs += (seconds * 1000); 
+            } else {
+                isResting = true;
+                currentRestStartMs = now;
+                currentRestTargetMs = now + (seconds * 1000); 
+            }
+            if(navigator.vibrate) navigator.vibrate(20);
+            renderTimerUI(Math.max(0, currentRestTargetMs - now) / 1000);
+        }
+
+        function stopRest() {
+            if (!isResting) return;
+            const now = Date.now();
+            totalRestMs += (now - currentRestStartMs); 
+            isResting = false;
+            currentRestStartMs = 0;
+            currentRestTargetMs = 0;
+            if(navigator.vibrate) navigator.vibrate(20);
+            renderTimerUI(0);
+        }
+
+        function onTick() {
+            const now = Date.now();
+            if (isResting) {
+                const timeLeft = Math.max(0, currentRestTargetMs - now);
+                if (timeLeft === 0) {
+                    totalRestMs += (currentRestTargetMs - currentRestStartMs); 
+                    isResting = false;
+                    currentRestStartMs = 0;
+                    currentRestTargetMs = 0;
+                    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    renderTimerUI(0);
+                } else {
+                    renderTimerUI(timeLeft / 1000);
+                }
+            } else {
+                const activeTime = now - workoutStartTime;
+                renderTimerUI(activeTime / 1000);
+            }
+        }
+
+        function renderTimerUI(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            document.getElementById('timeDisplay').innerText = `${m}:${s}`;
+
+            const label = document.getElementById('timerLabel');
+            const controls = document.getElementById('timerControls');
+
+            if (isResting) {
+                label.innerText = "Resting";
+                label.style.color = "var(--primary)";
+                controls.innerHTML = `
+                    <button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="stopRest()">Stop</button>
+                    <button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="addRest(60)">+ 60s</button>
+                `;
+            } else {
+                label.innerText = "Workout Time";
+                label.style.color = "var(--text-muted)";
+                controls.innerHTML = `
+                    <button class="action-btn btn-skip" style="padding: 12px 20px; font-size:1rem;" onclick="addRest(60)">Rest 60s</button>
+                `;
+            }
+        }
+
+        function renderCurrentCard() {
+            const container = document.getElementById('cardContainer');
+            const progress = document.getElementById('progressIndicator');
+
+            if (currentCardIndex >= currentWorkout.length) {
+                progress.innerText = "Completed";
+                renderSummaryCard(container);
+                if (wakeLock) wakeLock.release().catch(()=>{});
+                return;
+            }
+
+            progress.innerText = `Exercise ${currentCardIndex + 1} of ${currentWorkout.length}`;
+            const ex = exercises[currentWorkout[currentCardIndex]];
+
+            activeReps = typeof ex.reps === 'number' ? ex.reps : 0;
+            activeWeight = typeof ex.weight === 'number' ? ex.weight : 0;
+
+            let adjustersHTML = '';
+            if (ex.isAdjustable) {
+                adjustersHTML = `
+                    <div class="adjuster-group">
+                        <div class="adjuster">
+                            <span class="adj-label">Sets</span>
+                            <span class="adj-val">${ex.sets}</span>
+                        </div>
+                        <div class="adjuster">
+                            <span class="adj-label">Reps</span>
+                            <div class="adj-controls">
+                                <button class="adj-btn" onclick="adjust('reps', -1)">-</button>
+                                <span class="adj-val" id="val-reps">${activeReps}</span>
+                                <button class="adj-btn" onclick="adjust('reps', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="adjuster">
+                            <span class="adj-label">Weight</span>
+                            <div class="adj-controls">
+                                <button class="adj-btn" onclick="adjust('weight', -5)">-</button>
+                                <span class="adj-val" id="val-weight">${activeWeight}</span>
+                                <button class="adj-btn" onclick="adjust('weight', 5)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                adjustersHTML = `
+                    <div class="adjuster-group">
+                        <div class="adjuster" style="justify-content:center;">
+                            <span style="color:var(--text); font-weight:600; font-size:1.1rem">
+                                Target: ${ex.sets} x ${ex.reps} &nbsp;|&nbsp; ${ex.weight}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="card active">
+                    <div class="card-header">
+                        <h3 class="exercise-title">${ex.title}</h3>
+                        <span class="exercise-origin">${ex.origin}</span>
+                    </div>
+                    ${adjustersHTML}
+                    <div class="cues">${ex.cues}</div>
+                    <div class="actions">
+                        <button class="action-btn btn-skip" onclick="logAndNext(true)">Skip</button>
+                        <button class="action-btn btn-done" onclick="logAndNext(false)">Complete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function adjust(type, amount) {
+            if(navigator.vibrate) navigator.vibrate(10);
+            if (type === 'reps') {
+                activeReps = Math.max(0, activeReps + amount);
+                document.getElementById('val-reps').innerText = activeReps;
+            } else if (type === 'weight') {
+                activeWeight = Math.max(0, activeWeight + amount);
+                document.getElementById('val-weight').innerText = activeWeight;
+            }
+        }
+
+        function logAndNext(skipped) {
+            const ex = exercises[currentWorkout[currentCardIndex]];
+            if (!skipped) {
+                sessionLog.push({
+                    exercise: ex.title,
+                    sets: ex.sets,
+                    reps: ex.isAdjustable ? activeReps : ex.reps,
+                    weight: ex.isAdjustable ? activeWeight : ex.weight
+                });
+                if (currentCardIndex < currentWorkout.length - 1) {
+                    if (isResting) stopRest(); 
+                    addRest(60);
+                }
+            }
+            currentCardIndex++;
+            renderCurrentCard();
+        }
+
+        function renderSummaryCard(container) {
+            if (isResting) stopRest(); 
+            clearInterval(timerInterval); 
+            document.getElementById('topControls').style.display = 'none';
+
+            const totalMs = Date.now() - workoutStartTime;
+            const finalTotalSecs = Math.floor(totalMs / 1000);
+            const finalRestSecs = Math.floor(totalRestMs / 1000);
+            const finalActiveSecs = Math.max(0, finalTotalSecs - finalRestSecs); 
+
+            const fmt = (secs) => `${Math.floor(secs / 60)}m ${secs % 60}s`;
+
+            let tableRows = sessionLog.map(log => 
+                `<tr><td>${log.exercise}</td><td>${log.sets}×${log.reps}</td><td>${log.weight}</td></tr>`
+            ).join('');
+
+            container.innerHTML = `
+                <div class="card active" style="border-color: var(--primary)">
+                    <h3 style="margin-top:0; color:var(--text); font-size:1.8rem">Workout Complete ⚔️</h3>
+                    <div class="summary-stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Time</div>
+                            <div class="stat-value">${fmt(finalTotalSecs)}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Active Time</div>
+                            <div class="stat-value" style="color:var(--primary)">${fmt(finalActiveSecs)}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Rest Time</div>
+                            <div class="stat-value">${fmt(finalRestSecs)}</div>
+                        </div>
+                    </div>
+                    <table class="summary-table">
+                        <thead><tr><th>Exercise</th><th>Set×Rep</th><th>Weight</th></tr></thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                    <button class="action-btn btn-export" onclick="exportCSV(${finalTotalSecs}, ${finalActiveSecs}, ${finalRestSecs})">Export to CSV</button>
+                    <button class="action-btn btn-skip" style="width:100%; margin-top:12px" onclick="location.reload()">Finish & Reset</button>
+                </div>
+            `;
+            document.querySelector('.sticky-timer').style.display = 'none';
+        }
+
+        function exportCSV(total, active, rest) {
+            let csv = "Workout Summary\n";
+            csv += `Total Time (s),${total}\n`;
+            csv += `Active Time (s),${active}\n`;
+            csv += `Rest Time (s),${rest}\n\n`;
+            csv += "Exercise,Sets,Reps,Weight\n";
+            sessionLog.forEach(log => { csv += `"${log.exercise}",${log.sets},${log.reps},${log.weight}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            const dateStr = new Date().toISOString().split('T')[0];
+            link.setAttribute("download", `forge_workout_${dateStr}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && wakeLock === null) requestWakeLock();
+        });
+
+        startWorkout();
+    </script>
+</body>
+</html>
