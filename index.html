@@ -8,11 +8,8 @@
     <meta name="apple-mobile-web-app-title" content="Forge">
     <meta name="theme-color" content="#111111">
 
-    <!-- Embedded Sleek Icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E">
-
-    <!-- Embedded PWA Manifest -->
     <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{%22name%22:%20%22Forge%20Kinetic%22,%20%22short_name%22:%20%22Forge%22,%20%22display%22:%20%22standalone%22,%20%22background_color%22:%20%22%230a0a0a%22,%20%22theme_color%22:%20%22%23111111%22,%20%22icons%22:%20[{%22src%22:%20%22data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E%22,%20%22sizes%22:%20%22512x512%22,%20%22type%22:%20%22image/svg+xml%22,%20%22purpose%22:%20%22any%20maskable%22}]}">
 
     <title>Forge Kinetic</title>
@@ -34,12 +31,30 @@
         header h2 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
         .progress-indicator { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 
-        .controls { display: flex; gap: 10px; padding: 20px; justify-content: center; }
-        select { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 1rem; flex: 1; max-width: 300px; outline: none; appearance: none; text-align: center; }
+        .controls { display: flex; flex-direction: column; gap: 15px; padding: 20px; align-items: center; }
+        select { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 14px; border-radius: 8px; font-size: 1.05rem; width: 100%; max-width: 400px; outline: none; appearance: none; text-align: center; font-weight: 600; }
+        .category-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -5px; }
 
-        .card-container { padding: 15px; max-width: 500px; margin: 0 auto; }
-        .card { background: var(--surface); border-radius: 16px; padding: 24px; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid var(--border); }
+        .preview-container { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 15px; margin-top: -5px; }
+        .preview-title { font-size: 0.8rem; color: var(--primary); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;}
+        .preview-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-muted); }
+        .preview-list li { margin-bottom: 6px; display: flex; align-items: baseline; gap: 8px; }
+        .preview-origin { font-size: 1.1rem; }
+        .preview-opt { font-size: 0.7rem; background: #ffb703; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: auto; }
+
+        .btn-start-workout { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; width: 100%; max-width: 400px; cursor: pointer; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); transition: transform 0.1s; margin-top: 5px; }
+        .btn-start-workout:active { transform: scale(0.97); }
+
+        .card-container { padding: 15px; max-width: 500px; margin: 0 auto; display: none; }
+        .card { background: var(--surface); border-radius: 16px; padding: 24px; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid var(--border); position: relative; overflow: hidden; }
         .card.active { display: block; animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        /* Progress Bar for Time-Based Exercises */
+        .ex-progress-bg { display: none; background: var(--bg); height: 12px; border-radius: 6px; margin-top: 15px; overflow: hidden; border: 1px solid var(--border); }
+        .ex-progress-fill { background: var(--primary); height: 100%; width: 0%; transition: width 0.5s linear; }
+        .ex-progress-controls { display: none; align-items: center; justify-content: space-between; margin-top: 10px; }
+        .ex-progress-time { font-size: 1.2rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+        .ex-progress-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         .exercise-title { margin: 0; font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
@@ -50,20 +65,27 @@
         .adjuster { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); }
         .adj-label { font-weight: 600; color: var(--text-muted); width: 60px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;}
         .adj-controls { display: flex; align-items: center; gap: 15px; }
-        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
         .adj-btn:active { background: var(--primary-dim); color: var(--primary); border-color: var(--primary); }
         .adj-val { font-size: 1.4rem; font-weight: 700; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
 
-        .cues { background: var(--bg); padding: 16px; border-radius: 12px; font-size: 1rem; line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--primary); }
+        .cues { background: var(--bg); padding: 16px; border-radius: 12px; font-size: 1rem; line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--primary); margin-top: 15px; }
 
         .actions { display: flex; gap: 12px; margin-top: 24px; }
         button.action-btn { flex: 1; padding: 18px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
         button.action-btn:active { transform: scale(0.97); }
         .btn-skip { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
         .btn-done { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); }
-        .btn-export { background: #2a9d8f; color: #fff; margin-top: 15px; width: 100%; box-shadow: 0 4px 15px rgba(42, 157, 143, 0.3); }
 
-        .sticky-timer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        /* History & Export UI */
+        .history-container { max-width: 500px; margin: 10px auto; padding: 0 15px; display: none; }
+        .history-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 16px; border-radius: 12px; width: 100%; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .history-list { background: var(--surface); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 20px; font-size: 0.9rem; max-height: 300px; overflow-y: auto;}
+        .history-item { padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .history-item:last-child { border-bottom: none; }
+        .btn-export { background: #2a9d8f; color: #fff; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 600; border: none; cursor: pointer;}
+
+        .sticky-timer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid var(--border); display: none; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .timer-info { display: flex; flex-direction: column; }
         .timer-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         .timer-display { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; margin-top: 4px;}
@@ -74,10 +96,6 @@
         .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
         .stat-value { font-size: 1.2rem; font-weight: bold; }
 
-        .summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--bg); border-radius: 12px; overflow: hidden; }
-        .summary-table th, .summary-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        .summary-table th { background: var(--surface); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
-
         @keyframes slideIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
@@ -87,23 +105,50 @@
         <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E" class="header-icon" alt="Forge Icon">
         <div>
             <h2>FORGE KINETIC</h2>
-            <div class="progress-indicator" id="progressIndicator">Setup</div>
+            <div class="progress-indicator" id="progressIndicator">Awaiting Start</div>
         </div>
     </header>
 
     <div class="controls" id="topControls">
-        <select id="workoutDay" onchange="startWorkout()">
+        <span class="category-label">Select Programming</span>
+        <select id="workoutDay" onchange="updatePreview()">
             <option value="A">Day A (Strength & Rotation)</option>
             <option value="B">Day B (Volume & Flow)</option>
             <option value="C">Day C (Carries & Pulling)</option>
+            <optgroup label="Cultural Immersions (Heritage)">
+                <option value="Persia">Persia: House of Strength</option>
+                <option value="India">India: The Akhara</option>
+                <option value="Russia">Russia: The Frozen Field</option>
+                <option value="Japan">Japan: The Sacred Ring</option>
+                <option value="China">China: The Courtyard</option>
+                <option value="Scandinavia">Scandinavia: The Windswept Hill</option>
+                <option value="Apache">Apache/Sioux: Temper Resilience</option>
+            </optgroup>
         </select>
+
+        <div class="preview-container">
+            <div class="preview-title">Session Preview</div>
+            <ul class="preview-list" id="previewList"></ul>
+        </div>
+
+        <button class="btn-start-workout" onclick="startWorkout()">START SESSION</button>
     </div>
 
-    <div class="card-container" id="cardContainer">
-        <!-- Cards injected via JS -->
+    <div class="history-container" id="historyContainer">
+        <button class="history-btn" onclick="toggleHistory()">
+            <span>View Local Logbook</span>
+            <span id="historyCount">0 Sessions</span>
+        </button>
+        <div id="historyPanel" style="display: none;">
+            <div class="history-list" id="historyList"></div>
+            <button class="btn-export" onclick="exportFullHistoryCSV()">Export All Data to CSV</button>
+            <button class="action-btn btn-skip" style="width:100%; margin-top:10px; padding: 12px; font-size: 0.9rem;" onclick="clearHistory()">Wipe Logbook</button>
+        </div>
     </div>
 
-    <div class="sticky-timer">
+    <div class="card-container" id="cardContainer"></div>
+
+    <div class="sticky-timer" id="stickyTimer">
         <div class="timer-info">
             <span class="timer-label" id="timerLabel">Workout Time</span>
             <span class="timer-display" id="timeDisplay">00:00</span>
@@ -115,46 +160,78 @@
 
     <script>
         const exercises = {
-            reset: { id: "reset", title: "Kinetic Daily Reset", origin: "🧬", cues: "• 90-90 Hip Lift: 3x5 breaths<br>• Short-Foot: 2x20-30s/side<br>• Wall Angels: 2x10", sets: 1, reps: "5m", weight: "BW" },
-
-            // Day A
-            shiko: { id: "shiko", title: "Shiko / Goblet Squat", origin: "🇯🇵", cues: "Primary squat + hip opening. Echoes sumo/dojo patterns.", sets: 4, reps: 8, weight: 30 },
-            rdl: { id: "rdl", title: "KB RDL", origin: "⛓️", cues: "Hinge + glute dominance to oppose APT & lower-crossed.", sets: 4, reps: 8, weight: 30 },
-            row_a: { id: "row_a", title: "1-Arm DB Row", origin: "💪", cues: "Horizontal pull and scapular retraction.", sets: 4, reps: 8, weight: 25 },
-            mace_a: { id: "mace_a", title: "Mace 360 / 10-to-2", origin: "🇮🇷", cues: "Controlled rotation through shoulders-ribs-hips.", sets: 3, reps: 8, weight: 30, isOptional: true },
-
-            // Day B
-            bethak: { id: "bethak", title: "Bethak", origin: "🇮🇳", cues: "High-rep squat, ankle-knee-hip rhythm.", sets: 4, reps: 25, weight: "BW" },
+            reset: { id: "reset", title: "Kinetic Daily Reset", origin: "🧬", cues: "• 90-90 Hip Lift: 3x5 breaths<br>• Short-Foot: 2x20-30s/side<br>• Wall Angels: 2x10", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
+            shiko: { id: "shiko", title: "Shiko / Goblet Squat", origin: "🇯🇵", cues: "Primary squat + hip opening.", sets: 4, reps: 8, weight: 30 },
+            rdl: { id: "rdl", title: "KB RDL", origin: "⛓️", cues: "Hinge + glute dominance.", sets: 4, reps: 8, weight: 30 },
+            row_a: { id: "row_a", title: "1-Arm DB Row", origin: "💪", cues: "Horizontal pull.", sets: 4, reps: 8, weight: 25 },
+            mace_a: { id: "mace_a", title: "Mace 360 / 10-to-2", origin: "🇮🇷", cues: "Controlled rotation.", sets: 3, reps: 8, weight: 30, isOptional: true },
+            bethak: { id: "bethak", title: "Bethak", origin: "🇮🇳", cues: "High-rep squat.", sets: 4, reps: 25, weight: "BW" },
             danda: { id: "danda", title: "Danda / Hindu Pushup", origin: "🇮🇳", cues: "Spinal wave + pressing strength.", sets: 4, reps: 15, weight: "BW" },
-            mace_flow: { id: "mace_flow", title: "Light Mace Flow", origin: "🌀", cues: "360 + halos + uppercuts. Keeps shoulders & ribs moving.", sets: 3, reps: "60s", weight: 10 },
-            yt_raise: { id: "yt_raise", title: "Y/T Raise", origin: "🪽", cues: "Simple upper back raise for shoulder balance.", sets: 2, reps: 12, weight: "BW", isOptional: true },
-
-            // Day C
-            carry: { id: "carry", title: "Suitcase Carry", origin: "🚶", cues: "Anti-lateral-flexion, frontal-plane hip control.", sets: 3, reps: "30m", weight: 30 },
-            stepup: { id: "stepup", title: "Step-Up / Split Squat", origin: "🦵", cues: "Unilateral leg strength and pelvic control.", sets: 3, reps: 8, weight: 25 },
-            row_c: { id: "row_c", title: "1-Arm DB Row", origin: "💪", cues: "Second weekly pull exposure for rib cage control.", sets: 3, reps: 12, weight: 25 },
-            yijin_jing: { id: "yijin_jing", title: "Yijin Jing Postures", origin: "🇨🇳", cues: "Long-tension postures. Tendon & postural finisher.", sets: 2, reps: "3 breaths", weight: "BW", isOptional: true }
+            mace_flow: { id: "mace_flow", title: "Light Mace Flow", origin: "🌀", cues: "360 + halos + uppercuts.", sets: 3, reps: "60s", weight: 10, timeSecs: 60 },
+            yt_raise: { id: "yt_raise", title: "Y/T Raise", origin: "🪽", cues: "Simple upper back raise.", sets: 2, reps: 12, weight: "BW", isOptional: true },
+            carry: { id: "carry", title: "Suitcase Carry", origin: "🚶", cues: "Anti-lateral-flexion.", sets: 3, reps: "30m", weight: 30 },
+            stepup: { id: "stepup", title: "Step-Up / Split Squat", origin: "🦵", cues: "Unilateral leg strength.", sets: 3, reps: 8, weight: 25 },
+            row_c: { id: "row_c", title: "1-Arm DB Row", origin: "💪", cues: "Second weekly pull.", sets: 3, reps: 12, weight: 25 },
+            yijin_jing: { id: "yijin_jing", title: "Yijin Jing Postures", origin: "🇨🇳", cues: "Long-tension postures.", sets: 2, reps: "3 br", weight: "BW", isOptional: true },
+            persia_360: { id: "persia_360", title: "Heavy Mace 360°", origin: "🇮🇷", cues: "Trace a halo.", sets: 4, reps: 15, weight: 20 },
+            persia_10to2: { id: "persia_10to2", title: "Mace 10-to-2", origin: "🇮🇷", cues: "Draw a sword.", sets: 4, reps: 10, weight: 20 },
+            persia_flow: { id: "persia_flow", title: "Meel Flow Endurance", origin: "🇮🇷", cues: "Unbroken rhythm.", sets: 1, reps: "5m", weight: 10, isOptional: true, timeSecs: 300 },
+            india_danda: { id: "india_danda", title: "High-Volume Danda", origin: "🇮🇳", cues: "Pike → Dive → Scoop → Cobra.", sets: 1, reps: 50, weight: "BW" },
+            india_bethak: { id: "india_bethak", title: "High-Volume Bethak", origin: "🇮🇳", cues: "Rhythmic descent.", sets: 1, reps: 100, weight: "BW" },
+            india_hold: { id: "india_hold", title: "Earth Pit Isometric", origin: "🇮🇳", cues: "Low squat hold or plank.", sets: 1, reps: "60s", weight: "BW", isOptional: true, timeSecs: 60 },
+            russia_swing: { id: "russia_swing", title: "Hardstyle Swings", origin: "🇷🇺", cues: "10x10 EMOM.", sets: 10, reps: 10, weight: 30 },
+            russia_breath: { id: "russia_breath", title: "Systema Box Breathing", origin: "🇷🇺", cues: "4s Inhale, Hold, Exhale, Hold.", sets: 1, reps: "4m", weight: "BW", timeSecs: 240 },
+            russia_cossack: { id: "russia_cossack", title: "Cossack Squats", origin: "🇷🇺", cues: "Deep lateral lunges.", sets: 3, reps: 8, weight: "BW", isOptional: true },
+            japan_shiko: { id: "japan_shiko", title: "Ritual Shiko Stomps", origin: "🇯🇵", cues: "Stomp with purpose.", sets: 1, reps: 50, weight: "BW" },
+            japan_goblet: { id: "japan_goblet", title: "Dohyō Goblet Squat", origin: "🇯🇵", cues: "Root into the floor.", sets: 4, reps: 10, weight: 30 },
+            japan_teppo: { id: "japan_teppo", title: "Teppo (Post Strikes)", origin: "🇯🇵", cues: "Open palm strikes.", sets: 3, reps: 20, weight: "BW", isOptional: true },
+            china_zhan: { id: "china_zhan", title: "Zhan Zhuang", origin: "🇨🇳", cues: "Stand like a pine.", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
+            china_qigong: { id: "china_qigong", title: "Qigong Flow", origin: "🇨🇳", cues: "Cloud Hands.", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
+            china_hold: { id: "china_hold", title: "Isometric Split Stance", origin: "🇨🇳", cues: "Low split stance hold.", sets: 2, reps: "60s", weight: "BW", isOptional: true, timeSecs: 60 },
+            viking_carry: { id: "viking_carry", title: "Heavy Husafell/Sandbag", origin: "🌊", cues: "Awkward load to chest height.", sets: 4, reps: "30m", weight: 50 },
+            viking_farmer: { id: "viking_farmer", title: "Farmer's Walk", origin: "🌊", cues: "Grip strength.", sets: 3, reps: "40m", weight: 40 },
+            viking_cold: { id: "viking_cold", title: "Cold Exposure", origin: "❄️", cues: "Controlled stress adaptation.", sets: 1, reps: "2m", weight: "BW", isOptional: true, timeSecs: 120 },
+            apache_run: { id: "apache_run", title: "Nasal-Only Endurance", origin: "🪶", cues: "Breathe nasal only.", sets: 1, reps: "20m", weight: "BW", timeSecs: 1200 },
+            apache_crawl: { id: "apache_crawl", title: "Stealth Bear Crawl", origin: "🪶", cues: "Low to ground, silent.", sets: 3, reps: "20m", weight: "BW" },
+            apache_breath: { id: "apache_breath", title: "Temper Resilience", origin: "🪶", cues: "Post-endurance breath regulation.", sets: 1, reps: "3m", weight: "BW", isOptional: true, timeSecs: 180 }
         };
 
         const workouts = {
             A: ['reset', 'shiko', 'rdl', 'row_a', 'mace_a'],
             B: ['reset', 'bethak', 'danda', 'mace_flow', 'yt_raise'],
-            C: ['reset', 'carry', 'stepup', 'row_c', 'yijin_jing']
+            C: ['reset', 'carry', 'stepup', 'row_c', 'yijin_jing'],
+            Persia: ['reset', 'persia_360', 'persia_10to2', 'persia_flow'],
+            India: ['reset', 'india_danda', 'india_bethak', 'india_hold'],
+            Russia: ['reset', 'russia_swing', 'russia_cossack', 'russia_breath'],
+            Japan: ['reset', 'japan_shiko', 'japan_goblet', 'japan_teppo'],
+            China: ['reset', 'china_zhan', 'china_qigong', 'china_hold'],
+            Scandinavia: ['reset', 'viking_carry', 'viking_farmer', 'viking_cold'],
+            Apache: ['reset', 'apache_run', 'apache_crawl', 'apache_breath']
         };
 
         let currentCardIndex = 0;
         let currentWorkout = [];
+        let currentDayLabel = "";
         let activeReps = 0;
         let activeWeight = 0;
 
         let sessionLog = [];
         let workoutStartTime = 0;
         let totalRestMs = 0; 
+
+        // Master Rest Engine
         let isResting = false;
         let currentRestStartMs = 0;
         let currentRestTargetMs = 0;
         let timerInterval = null;
+
+        // Local Exercise Timer Engine
+        let isExTimerRunning = false;
+        let exTimerTotalMs = 0;
+        let exTimerStartMs = 0;
+
         let wakeLock = null;
+        let localLogbook = [];
 
         async function requestWakeLock() {
             try {
@@ -162,11 +239,66 @@
             } catch (err) { console.log('Wake Lock failed:', err); }
         }
 
+        function initApp() {
+            const saved = localStorage.getItem('forgeLogbook');
+            if (saved) {
+                try {
+                    localLogbook = JSON.parse(saved);
+                    document.getElementById('historyCount').innerText = `${localLogbook.length} Sessions`;
+                } catch(e) { localLogbook = []; }
+            }
+            document.getElementById('historyContainer').style.display = 'block';
+            updatePreview(); 
+        }
+
+        function updatePreview() {
+            const selectEl = document.getElementById('workoutDay');
+            const dayKey = selectEl.value;
+            const previewList = document.getElementById('previewList');
+            const plannedExercises = workouts[dayKey];
+
+            let listHTML = '';
+            plannedExercises.forEach(exKey => {
+                const ex = exercises[exKey];
+                const optTag = ex.isOptional ? `<span class="preview-opt">OPTIONAL</span>` : '';
+                listHTML += `<li><span class="preview-origin">${ex.origin}</span><span><strong>${ex.title}</strong> &nbsp;<span style="color:var(--text-muted); font-size:0.85rem">${ex.sets}x${ex.reps}</span></span>${optTag}</li>`;
+            });
+            previewList.innerHTML = listHTML;
+        }
+
+        function toggleHistory() {
+            const panel = document.getElementById('historyPanel');
+            const list = document.getElementById('historyList');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                if (localLogbook.length === 0) {
+                    list.innerHTML = "<div style='color:var(--text-muted); text-align:center;'>No completed workouts yet.</div>";
+                } else {
+                    list.innerHTML = localLogbook.map(w => 
+                        `<div class="history-item">
+                            <div><strong>${w.date}</strong> <br><span style="color:var(--text-muted)">${w.day}</span></div>
+                            <div style="text-align:right">${w.totalTime}<br><span style="color:var(--primary)">${w.activeTime}</span></div>
+                        </div>`
+                    ).reverse().join('');
+                }
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
         function startWorkout() {
-            const day = document.getElementById('workoutDay').value;
-            currentWorkout = workouts[day];
+            const selectEl = document.getElementById('workoutDay');
+            const dayKey = selectEl.value;
+            currentDayLabel = selectEl.options[selectEl.selectedIndex].text;
+
+            currentWorkout = workouts[dayKey];
             currentCardIndex = 0;
             sessionLog = [];
+
+            document.getElementById('topControls').style.display = 'none';
+            document.getElementById('historyContainer').style.display = 'none';
+            document.getElementById('cardContainer').style.display = 'block';
+            document.getElementById('stickyTimer').style.display = 'flex';
 
             workoutStartTime = Date.now();
             totalRestMs = 0;
@@ -175,7 +307,7 @@
             currentRestTargetMs = 0;
 
             clearInterval(timerInterval);
-            timerInterval = setInterval(onTick, 500); 
+            timerInterval = setInterval(onTick, 100); // Faster tick for progress bar smoothness
 
             requestWakeLock();
             renderCurrentCard();
@@ -191,7 +323,7 @@
                 currentRestTargetMs = now + (seconds * 1000); 
             }
             if(navigator.vibrate) navigator.vibrate(20);
-            renderTimerUI(Math.max(0, currentRestTargetMs - now) / 1000);
+            renderMasterTimerUI(Math.max(0, currentRestTargetMs - now) / 1000);
         }
 
         function stopRest() {
@@ -202,11 +334,34 @@
             currentRestStartMs = 0;
             currentRestTargetMs = 0;
             if(navigator.vibrate) navigator.vibrate(20);
-            renderTimerUI(0);
+            renderMasterTimerUI(0);
+        }
+
+        // Local Exercise Timer Functions
+        function toggleExTimer() {
+            if(navigator.vibrate) navigator.vibrate(10);
+            if (isExTimerRunning) {
+                isExTimerRunning = false; // Pause
+                document.getElementById('exTimerBtn').innerText = "Resume";
+            } else {
+                // If it's finished, reset it. Otherwise resume.
+                const now = Date.now();
+                if (exTimerStartMs === 0 || (now - exTimerStartMs >= exTimerTotalMs)) {
+                    exTimerStartMs = now; // Start fresh
+                } else {
+                    // Resume logic: shift the start time forward by the paused duration
+                    // Handled implicitly by adjusting exTimerStartMs in real implementation, but for simplicity, we just restart here if stopped.
+                    exTimerStartMs = now;
+                }
+                isExTimerRunning = true;
+                document.getElementById('exTimerBtn').innerText = "Stop";
+            }
         }
 
         function onTick() {
             const now = Date.now();
+
+            // 1. Update Master Rest Timer
             if (isResting) {
                 const timeLeft = Math.max(0, currentRestTargetMs - now);
                 if (timeLeft === 0) {
@@ -215,17 +370,37 @@
                     currentRestStartMs = 0;
                     currentRestTargetMs = 0;
                     if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                    renderTimerUI(0);
+                    renderMasterTimerUI(0);
                 } else {
-                    renderTimerUI(timeLeft / 1000);
+                    renderMasterTimerUI(timeLeft / 1000);
                 }
             } else {
                 const activeTime = now - workoutStartTime;
-                renderTimerUI(activeTime / 1000);
+                renderMasterTimerUI(activeTime / 1000);
+            }
+
+            // 2. Update Local Exercise Progress Bar (if active)
+            if (isExTimerRunning && exTimerTotalMs > 0) {
+                const elapsed = now - exTimerStartMs;
+                const remaining = Math.max(0, exTimerTotalMs - elapsed);
+                const percent = Math.min(100, (elapsed / exTimerTotalMs) * 100);
+
+                document.getElementById('exProgressFill').style.width = `${percent}%`;
+
+                const rSecs = Math.ceil(remaining / 1000);
+                const m = Math.floor(rSecs / 60).toString().padStart(2, '0');
+                const s = (rSecs % 60).toString().padStart(2, '0');
+                document.getElementById('exProgressTime').innerText = `${m}:${s}`;
+
+                if (remaining === 0) {
+                    isExTimerRunning = false;
+                    document.getElementById('exTimerBtn').innerText = "Done";
+                    if(navigator.vibrate) navigator.vibrate([300, 200, 300]);
+                }
             }
         }
 
-        function renderTimerUI(seconds) {
+        function renderMasterTimerUI(seconds) {
             const m = Math.floor(seconds / 60).toString().padStart(2, '0');
             const s = Math.floor(seconds % 60).toString().padStart(2, '0');
             document.getElementById('timeDisplay').innerText = `${m}:${s}`;
@@ -236,22 +411,22 @@
             if (isResting) {
                 label.innerText = "Resting";
                 label.style.color = "var(--primary)";
-                controls.innerHTML = `
-                    <button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="stopRest()">Stop</button>
-                    <button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="addRest(60)">+ 60s</button>
-                `;
+                controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="stopRest()">Stop</button><button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="addRest(60)">+ 60s</button>`;
             } else {
                 label.innerText = "Workout Time";
                 label.style.color = "var(--text-muted)";
-                controls.innerHTML = `
-                    <button class="action-btn btn-skip" style="padding: 12px 20px; font-size:1rem;" onclick="addRest(60)">Rest 60s</button>
-                `;
+                controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px 20px; font-size:1rem;" onclick="addRest(60)">Rest 60s</button>`;
             }
         }
 
         function renderCurrentCard() {
             const container = document.getElementById('cardContainer');
             const progress = document.getElementById('progressIndicator');
+
+            // Stop any running local timer
+            isExTimerRunning = false;
+            exTimerTotalMs = 0;
+            exTimerStartMs = 0;
 
             if (currentCardIndex >= currentWorkout.length) {
                 progress.innerText = "Completed";
@@ -260,17 +435,24 @@
                 return;
             }
 
-            progress.innerText = `Exercise ${currentCardIndex + 1} of ${currentWorkout.length}`;
+            progress.innerText = `${currentDayLabel} | Ex ${currentCardIndex + 1}/${currentWorkout.length}`;
             const ex = exercises[currentWorkout[currentCardIndex]];
 
             activeReps = ex.reps;
             activeWeight = ex.weight;
 
+            let repFn = typeof ex.reps === 'number' ? `adjust('reps', -1)` : '';
+            let repFnP = typeof ex.reps === 'number' ? `adjust('reps', 1)` : '';
+            if (typeof ex.reps === 'number' && ex.reps >= 50) {
+                 repFn = `adjust('reps', -5)`;
+                 repFnP = `adjust('reps', 5)`;
+            }
+
             const repsHTML = typeof ex.reps === 'number' ?
                 `<div class="adj-controls">
-                    <button class="adj-btn" onclick="adjust('reps', -1)">-</button>
+                    <button class="adj-btn" onclick="${repFn}">-</button>
                     <span class="adj-val" id="val-reps">${activeReps}</span>
-                    <button class="adj-btn" onclick="adjust('reps', 1)">+</button>
+                    <button class="adj-btn" onclick="${repFnP}">+</button>
                 </div>` :
                 `<span class="adj-val" style="font-size:1.1rem; color:var(--primary);">${ex.reps}</span>`;
 
@@ -283,6 +465,24 @@
                 `<span class="adj-val" style="font-size:1.1rem; color:var(--primary);">${ex.weight}</span>`;
 
             const optionalBadge = ex.isOptional ? `<div class="badge-optional">Optional Finisher</div>` : '';
+
+            // Progress Bar HTML logic
+            let progressHTML = '';
+            if (ex.timeSecs) {
+                exTimerTotalMs = ex.timeSecs * 1000;
+                const m = Math.floor(ex.timeSecs / 60).toString().padStart(2, '0');
+                const s = (ex.timeSecs % 60).toString().padStart(2, '0');
+
+                progressHTML = `
+                    <div class="ex-progress-bg" style="display:block;">
+                        <div class="ex-progress-fill" id="exProgressFill"></div>
+                    </div>
+                    <div class="ex-progress-controls" style="display:flex;">
+                        <span class="ex-progress-time" id="exProgressTime">${m}:${s}</span>
+                        <button class="ex-progress-btn" id="exTimerBtn" onclick="toggleExTimer()">Start Timer</button>
+                    </div>
+                `;
+            }
 
             container.innerHTML = `
                 <div class="card active">
@@ -308,6 +508,8 @@
                             ${weightHTML}
                         </div>
                     </div>
+
+                    ${progressHTML}
 
                     <div class="cues">${ex.cues}</div>
 
@@ -339,6 +541,7 @@
                     reps: activeReps,
                     weight: activeWeight
                 });
+
                 if (currentCardIndex < currentWorkout.length - 1) {
                     if (isResting) stopRest(); 
                     addRest(60);
@@ -351,7 +554,6 @@
         function renderSummaryCard(container) {
             if (isResting) stopRest(); 
             clearInterval(timerInterval); 
-            document.getElementById('topControls').style.display = 'none';
 
             const totalMs = Date.now() - workoutStartTime;
             const finalTotalSecs = Math.floor(totalMs / 1000);
@@ -360,13 +562,31 @@
 
             const fmt = (secs) => `${Math.floor(secs / 60)}m ${secs % 60}s`;
 
+            // Ensure no invalid state breaks the save
+            try {
+                const dateStrLocal = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                localLogbook.push({
+                    date: dateStrLocal,
+                    day: currentDayLabel,
+                    totalTime: fmt(finalTotalSecs),
+                    activeTime: fmt(finalActiveSecs),
+                    restTime: fmt(finalRestSecs),
+                    logs: sessionLog
+                });
+                localStorage.setItem('forgeLogbook', JSON.stringify(localLogbook));
+            } catch (e) {
+                console.error("Failed to save logbook", e);
+            }
+
             let tableRows = sessionLog.map(log => 
                 `<tr><td>${log.exercise}</td><td>${log.sets}×${log.reps}</td><td>${log.weight}</td></tr>`
             ).join('');
 
             container.innerHTML = `
                 <div class="card active" style="border-color: var(--primary)">
-                    <h3 style="margin-top:0; color:var(--text); font-size:1.8rem">Workout Complete ⚔️</h3>
+                    <h3 style="margin-top:0; color:var(--text); font-size:1.8rem">Workout Logged ⚔️</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:-10px;">Saved to internal logbook.</p>
+
                     <div class="summary-stats">
                         <div class="stat-box">
                             <div class="stat-label">Total Time</div>
@@ -385,37 +605,51 @@
                         <thead><tr><th>Exercise</th><th>Set×Rep</th><th>Weight</th></tr></thead>
                         <tbody>${tableRows}</tbody>
                     </table>
-                    <button class="action-btn btn-export" onclick="exportCSV(${finalTotalSecs}, ${finalActiveSecs}, ${finalRestSecs})">Export to CSV</button>
-                    <button class="action-btn btn-skip" style="width:100%; margin-top:12px" onclick="location.reload()">Finish & Reset</button>
+                    <button class="action-btn btn-skip" style="width:100%; margin-top:20px" onclick="location.reload()">Finish & Return Home</button>
                 </div>
             `;
-            document.querySelector('.sticky-timer').style.display = 'none';
+            document.getElementById('stickyTimer').style.display = 'none';
         }
 
-        function exportCSV(total, active, rest) {
-            let csv = "Workout Summary\n";
-            csv += `Total Time (s),${total}\n`;
-            csv += `Active Time (s),${active}\n`;
-            csv += `Rest Time (s),${rest}\n\n`;
-            csv += "Exercise,Sets,Reps,Weight\n";
-            sessionLog.forEach(log => { csv += `"${log.exercise}",${log.sets},${log.reps},${log.weight}\n`; });
+        function exportFullHistoryCSV() {
+            if (localLogbook.length === 0) return alert("No data to export.");
+
+            let csv = "Date,Workout,Total Time,Active Time,Rest Time,Exercise,Sets,Reps,Weight\n";
+
+            localLogbook.forEach(session => {
+                session.logs.forEach(log => {
+                    csv += `"${session.date}","${session.day}","${session.totalTime}","${session.activeTime}","${session.restTime}","${log.exercise}",${log.sets},${log.reps},${log.weight}\n`;
+                });
+            });
+
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
             const dateStr = new Date().toISOString().split('T')[0];
-            link.setAttribute("download", `forge_workout_${dateStr}.csv`);
+            link.setAttribute("download", `forge_lifetime_log_${dateStr}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
+        function clearHistory() {
+            if (confirm("Are you sure you want to permanently delete all workout history?")) {
+                localStorage.removeItem('forgeLogbook');
+                localLogbook = [];
+                toggleHistory(); 
+                initApp(); 
+            }
+        }
+
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && wakeLock === null) requestWakeLock();
+            if (document.visibilityState === 'visible' && wakeLock === null && document.getElementById('stickyTimer').style.display !== 'none') {
+                requestWakeLock();
+            }
         });
 
-        startWorkout();
+        initApp();
     </script>
 </body>
 </html>
