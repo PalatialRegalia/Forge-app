@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+*.log
+.DS_Store
+Thumbs.db
+*.sublime-workspace
+*.sublime-project
+.env
+.env.local
+.cache
+remote-index.html
