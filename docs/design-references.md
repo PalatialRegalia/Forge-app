@@ -317,3 +317,50 @@ Two viable strategies:
 ### Attribution hygiene
 
 If any attributed set is adopted, add a short `ATTRIBUTIONS.md` beside `LICENSE`, listing each source, its licence, and the exact credit line it requires. **Game Icons (CC BY 3.0)** and **Twemoji graphics (CC BY 4.0)** require a named credit; **Health Icons (CC0)**, **Tabler (MIT)** and **Lucide (ISC)** do not — though naming them is still good practice.
+
+---
+
+## 8. Implemented (first pass from the shortlist)
+
+Scope taken: moves **#2 (contrast pass)** and **#3 (glyph set)** only. Moves #1, #4–#7 remain open, and two accessibility defects (§3.3 items 5–6) were deliberately left alone because they belong to move #5.
+
+### 8.1 Contrast and tokens
+
+`:root` now defines 16 named tokens, and **no colour literal appears anywhere else in the stylesheet** — verifiable: no `#hex` and no `rgba()` outside the `:root` block. Measured before → after:
+
+| Role | Before | After |
+|---|---|---|
+| Muted text on card surface | `#a1a1aa` — 6.6:1 | `#b4b4bd` — **8.3:1** |
+| Red as ink on card surface | `#e63946` — 4.08:1 ✗ | `#f2555f` — **5.1:1** |
+| Red as ink on page bg | `#e63946` — 4.75:1 | `#f2555f` — **5.9:1** |
+| White on the primary fill | `#fff` on `#e63946` — 4.17:1 ✗ | `#fff` on `#c1121f` — **6.2:1** |
+| Control edges | `#27272a` — 1.14:1 (invisible in daylight) | `#6b6b75` — **3.2:1** |
+| Container edges | `#27272a` — 1.14:1 | `#3f3f46` — 1.6:1, deliberately calmer than controls |
+| Export button | `#fff` on `#2a9d8f` — 3.32:1 ✗ | neutral surface + body text — **15.5:1** |
+
+Also fixed, found while editing: **Skip rendered borderless.** `button.action-btn { border: none }` outspecifies a bare `.btn-skip { border: … }`, so the Skip button never received the border its own rule asked for — dead CSS that had been invisible since it was written. It now uses a two-class selector so the control edge applies.
+
+The palette went from four unrelated hues to **one red in two roles** — ink (`--accent`) and fill (`--action`) — plus a single amber for "optional". The two reds are not the drift this document complains about: a single value cannot be both a fill under white text *and* readable text on near-black. That is a measured constraint, and it is documented in the CSS next to the values. Wipe Logbook is now red *ink* on a neutral body, so the red *fill* means exactly one thing: the primary action.
+
+### 8.2 Glyph set
+
+15 hand-drawn glyphs on a 24×24 grid, 2 px stroke, `currentColor`, no fills — **4,133 bytes for the entire set**, about 275 bytes each, so the whole icon system costs less than a single emoji PNG.
+
+The vocabulary: `mobility`, `hinge`, `pull`, `rotation`, `raise`, `carry`, `lunge` (movement patterns) and `persia`, `india`, `japan`, `china`, `russia`, `north`, `plains` (traditions), plus `cold`. Every exercise's `origin` emoji field became a `glyph` id.
+
+Traditions are drawn as neutral architectural and landscape emblems — arch, ring, pine, waves, feather, kettlebell, triangle — which match the app's own names for those days ("The Sacred Ring", "The Courtyard", "The Frozen Field"). Specifically **no flags**: they were the most fragile sequences (bare letter pairs on Windows) and the least legible at small size. And no attempt to depict anyone's practice — the risk of pastiche was raised in §4F and avoided rather than guessed at.
+
+Incidental accessibility win: emoji announced as "flag: Japan"; each glyph now carries `role="img"` and an `aria-label` such as "Japanese tradition" or "Hip hinge".
+
+**How it was verified.** A throwaway stdlib renderer (SVG path → distance-field stroke → PNG) rasterized the glyphs at 24 px and 96 px so they could actually be looked at rather than guessed at. Four shapes failed to read on first render and were redrawn: a concentric-ring-with-ticks read as a *pause button*, a dumbbell read as the letter **H**, a diagonal staff read as a **prohibition slash**, and a chevron-plus-dot read as a **downward arrow**. `tools/glyph-preview.py` regenerates the contact sheet directly from `index.html`, so the check is repeatable without a browser, a build step, or a second copy of the data.
+
+### 8.3 Still open
+
+| Move | Status |
+|---|---|
+| #1 Freeze the remaining tokens (one type scale, one radius) | open — radii still mix 8/10/12/16 px and the type scale still has ~15 steps |
+| #4 Big-number timer doctrine, audio + haptic cues | open |
+| #5 Ergonomics: re-enable pinch-zoom, drop global `user-select: none`, raise controls to ≥48 px | open — the two a11y defects in §3.3 are untouched |
+| #6 Harden the aesthetic: tighter radii, drop the glow shadows | open — the glows are still present and were only re-tinted |
+| #7 Imagery (SVG texture layer or CC0 heritage photography) | open |
+

@@ -16,7 +16,7 @@ A progressive web app for structured movement workouts — a curated library of 
 
 Forge Kinetic is a single-file progressive web app for training. It gives you:
 
-- **Exercise library** — a built-in set of movements organized by origin/style, each with a title, cues, and default prescription (sets × reps or timed intervals).
+- **Exercise library** — a built-in set of movements, each with a title, a glyph, cues, and a default prescription (sets × reps or timed intervals).
 - **Daily planner** — pick a day, see the planned exercises for it, and optionally mark an exercise as optional.
 - **Session timer** — start a workout, advance through exercises, track elapsed time per exercise and total session time.
 - **Completion summary** — when a session ends, you get a recap of what you did and for how long.
@@ -45,6 +45,9 @@ forge-app/
 ├── icon.svg        # PWA / favicon / apple-touch-icon (SVG)
 ├── docs/
 │   └── design-references.md   # UI/UX reference library and polish shortlist
+├── tools/
+│   ├── glyph-preview.py       # Regenerates the icon contact sheet (no deps)
+│   └── glyph-preview.html     # Generated: every glyph at 16/24/32 px
 ├── .gitignore
 ├── LICENSE         # MIT
 ├── CONTRIBUTING.md
@@ -92,7 +95,7 @@ Exercise data is defined in `index.html` as a JavaScript object. Each exercise h
 {
   id: "exercise_id",
   title: "Display title",
-  origin: "Short origin / style note",
+  glyph: "hinge",    // id from the GLYPHS set in index.html (see "Icons" below)
   cues: "Cue text shown during the set",
   sets: 3,
   reps: 10,
@@ -102,6 +105,30 @@ Exercise data is defined in `index.html` as a JavaScript object. Each exercise h
 ```
 
 To add or modify exercises, edit the exercise definitions directly in `index.html`. To change the daily plans, edit the day→exercise mappings in the same object. To change the icon or colors, edit `icon.svg` and `manifest.json`.
+
+## Icons
+
+Every exercise points at a glyph id from the `GLYPHS` object in `index.html`. The
+set is drawn by hand on a 24×24 grid with a 2 px stroke and `currentColor`, so a
+glyph inherits the colour of whatever badge contains it, scales without blurring,
+and renders identically on every platform. There are 15 ids:
+
+| Movement patterns | Traditions | Elements |
+|---|---|---|
+| `mobility`, `hinge`, `pull`, `rotation`, `raise`, `carry`, `lunge` | `persia`, `india`, `japan`, `china`, `russia`, `north`, `plains` | `cold` |
+
+To see the whole set at 16/24/32 px:
+
+```bash
+python3 tools/glyph-preview.py     # rewrites tools/glyph-preview.html
+```
+
+Then open `tools/glyph-preview.html` in a browser. The script reads the glyph
+definitions out of `index.html`, so there is one source of truth for the icon set.
+
+Adding a glyph means adding one entry to `GLYPHS` and one to `GLYPH_LABELS` in
+`index.html`. Keep to the grid: 2 px stroke, round caps and joins, `currentColor`,
+no fills, and check it still reads at 16 px.
 
 ## PWA / manifest
 
@@ -119,7 +146,9 @@ No server-side code, no build, no environment variables.
 
 ## Design notes
 
-Research on the visual and icon direction lives in [`docs/design-references.md`](docs/design-references.md). It covers the "AK-47 ethos" decoded into testable principles, a reference library of projects that combine excellent UI/UX with that ethos (GOV.UK, Rams, Gymboss, Concept2 PM5, Health Icons, Game Icons, Met/Smithsonian Open Access), measured contrast ratios for the current colour tokens, and a concrete polish shortlist.
+Research on the visual and icon direction lives in [`docs/design-references.md`](docs/design-references.md): the "AK-47 ethos" decoded into testable principles, a reference library of projects that combine excellent UI/UX with that ethos (GOV.UK, Rams, Gymboss, Concept2 PM5, Health Icons, Game Icons, Met/Smithsonian Open Access), measured contrast ratios for the colour tokens, and the polish shortlist.
+
+Implemented from that shortlist so far: every colour is a named token, the measured contrast failures are fixed (muted text 8.3:1 on cards, red as ink 5.1:1, control edges 3.2:1 where they were 1.1:1), the three drifting accents are reduced to one red in two roles plus a single amber, and the platform emoji are replaced by the hand-drawn glyph set described above.
 
 ## Author
 

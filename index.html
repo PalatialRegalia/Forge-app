@@ -15,77 +15,115 @@
     <title>Forge Kinetic</title>
     <style>
         :root {
+            /* Surfaces and text. Every value below is checked against WCAG:
+               body text >= 4.5:1, large numerals and control edges >= 3:1. */
             --bg: #0a0a0a;
             --surface: #1c1c1e;
-            --primary: #e63946;
-            --primary-dim: rgba(230, 57, 70, 0.2);
-            --text: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --border: #27272a;
+            --text: #f4f4f5;          /* 15.5:1 on surface */
+            --text-muted: #b4b4bd;    /* 8.3:1 on surface (was #a1a1aa, 6.6:1) */
+
+            /* Edges. --border is a calm container edge; --border-strong is for
+               interactive controls, whose boundary is the only thing that says
+               "this is tappable", so it must clear 3:1. --rule is decorative. */
+            --border: #3f3f46;        /* container edge */
+            --border-strong: #6b6b75; /* control edge, 3.2:1 on surface */
+            --rule: #2f2f34;          /* internal dividers only */
+
+            /* Signal system: one red hue, two roles. A single value cannot be
+               both a fill under white text and readable text on near-black, so
+               the hue is shared and the lightness splits by role. */
+            --accent: #f2555f;        /* red as ink: 5.1:1 on surface, 5.9:1 on bg */
+            --action: #c1121f;        /* red as fill: white on it is 6.2:1 */
+            --on-action: #ffffff;
+            --accent-dim: rgba(242, 85, 95, 0.18);
+
+            /* Exactly one signal colour for "optional", and nothing else. */
+            --optional: #ffb703;
+            --on-optional: #0a0a0a;
+
+            /* Translucent surface for the sticky timer, and the single shadow
+               colour used by the primary buttons. */
+            --surface-glass: rgba(28, 28, 30, 0.95);
+            --action-glow: rgba(193, 18, 31, 0.35);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 100px; user-select: none; }
 
-        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--rule); background: var(--surface); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .header-icon { width: 24px; height: 24px; }
         header h2 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
         .progress-indicator { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 
         .controls { display: flex; flex-direction: column; gap: 15px; padding: 20px; align-items: center; }
-        select { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 14px; border-radius: 8px; font-size: 1.05rem; width: 100%; max-width: 400px; outline: none; appearance: none; text-align: center; font-weight: 600; }
+        select { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); padding: 14px; border-radius: 8px; font-size: 1.05rem; width: 100%; max-width: 400px; outline: none; appearance: none; text-align: center; font-weight: 600; }
         .category-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -5px; }
 
         .preview-container { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 15px; margin-top: -5px; }
-        .preview-title { font-size: 0.8rem; color: var(--primary); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;}
+        .preview-title { font-size: 0.8rem; color: var(--accent); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;}
         .preview-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-muted); }
-        .preview-list li { margin-bottom: 6px; display: flex; align-items: baseline; gap: 8px; }
-        .preview-origin { font-size: 1.1rem; }
-        .preview-opt { font-size: 0.7rem; background: #ffb703; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: auto; }
+        .preview-list li { margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; }
+        /* Iconography ------------------------------------------------------
+           One hand-drawn glyph set: 24px grid, 2px stroke, currentColor, no
+           fills. This replaces platform emoji, which the OS drew and the app
+           did not control - flag sequences became bare letter pairs on Windows
+           and several combinations degraded to tofu on older Android. */
+        .glyph { display: block; width: 100%; height: 100%; }
+        .preview-origin { display: block; width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--text-muted); }
+        .preview-opt { font-size: 0.7rem; background: var(--optional); color: var(--on-optional); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: auto; }
 
-        .btn-start-workout { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; width: 100%; max-width: 400px; cursor: pointer; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); transition: transform 0.1s; margin-top: 5px; }
+        .btn-start-workout { background: var(--action); color: var(--on-action); border: none; padding: 16px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; width: 100%; max-width: 400px; cursor: pointer; box-shadow: 0 4px 15px var(--action-glow); transition: transform 0.1s; margin-top: 5px; }
         .btn-start-workout:active { transform: scale(0.97); }
 
         .card-container { padding: 15px; max-width: 500px; margin: 0 auto; display: none; }
-        .card { background: var(--surface); border-radius: 16px; padding: 24px; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .card { background: var(--surface); border-radius: 16px; padding: 24px; display: none; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; overflow: hidden; }
         .card.active { display: block; animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
 
         /* Progress Bar for Time-Based Exercises */
-        .ex-progress-bg { display: none; background: var(--bg); height: 12px; border-radius: 6px; margin-top: 15px; overflow: hidden; border: 1px solid var(--border); }
-        .ex-progress-fill { background: var(--primary); height: 100%; width: 0%; transition: width 0.5s linear; }
+        .ex-progress-bg { display: none; background: var(--bg); height: 12px; border-radius: 6px; margin-top: 15px; overflow: hidden; border: 1px solid var(--border-strong); }
+        .ex-progress-fill { background: var(--action); height: 100%; width: 0%; transition: width 0.5s linear; }
         .ex-progress-controls { display: none; align-items: center; justify-content: space-between; margin-top: 10px; }
         .ex-progress-time { font-size: 1.2rem; font-weight: bold; font-variant-numeric: tabular-nums; }
-        .ex-progress-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .ex-progress-btn { background: var(--surface); border: 1px solid var(--border-strong); color: var(--text); padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         .exercise-title { margin: 0; font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
-        .badge-optional { background: #ffb703; color: #000; font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; align-self: flex-start; margin-top: 6px;}
-        .exercise-origin { font-size: 1.5rem; background: var(--bg); padding: 8px; border-radius: 12px; }
+        .badge-optional { background: var(--optional); color: var(--on-optional); font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; align-self: flex-start; margin-top: 6px;}
+        .exercise-origin { display: block; width: 30px; height: 30px; padding: 8px; background: var(--bg); border-radius: 12px; color: var(--text); border: 1px solid var(--border); }
 
         .adjuster-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
         .adjuster { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); }
         .adj-label { font-weight: 600; color: var(--text-muted); width: 60px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;}
         .adj-controls { display: flex; align-items: center; gap: 15px; }
-        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
-        .adj-btn:active { background: var(--primary-dim); color: var(--primary); border-color: var(--primary); }
+        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+        .adj-btn:active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
         .adj-val { font-size: 1.4rem; font-weight: 700; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
 
-        .cues { background: var(--bg); padding: 16px; border-radius: 12px; font-size: 1rem; line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--primary); margin-top: 15px; }
+        .cues { background: var(--bg); padding: 16px; border-radius: 12px; font-size: 1rem; line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--action); margin-top: 15px; }
 
         .actions { display: flex; gap: 12px; margin-top: 24px; }
         button.action-btn { flex: 1; padding: 18px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
         button.action-btn:active { transform: scale(0.97); }
-        .btn-skip { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-        .btn-done { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); }
+        /* Note the two-class selector: a bare `.btn-skip` loses the border to
+           `button.action-btn { border: none }` on specificity, which is why the
+           Skip button rendered borderless before. */
+        .action-btn.btn-skip { background: var(--bg); color: var(--text); border: 1px solid var(--border-strong); }
+        .btn-done { background: var(--action); color: var(--on-action); box-shadow: 0 4px 15px var(--action-glow); }
 
         /* History & Export UI */
         .history-container { max-width: 500px; margin: 10px auto; padding: 0 15px; display: none; }
-        .history-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 16px; border-radius: 12px; width: 100%; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .history-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border-strong); padding: 16px; border-radius: 12px; width: 100%; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
         .history-list { background: var(--surface); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 20px; font-size: 0.9rem; max-height: 300px; overflow-y: auto;}
-        .history-item { padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .history-item { padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; }
         .history-item:last-child { border-bottom: none; }
-        .btn-export { background: #2a9d8f; color: #fff; width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 600; border: none; cursor: pointer;}
+        .btn-export { background: var(--surface); color: var(--text); width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 600; border: 1px solid var(--border-strong); cursor: pointer;}
+        /* Destructive action: red ink on a neutral body. Reserving the red fill
+           for the single primary action keeps "danger" legible without letting
+           it compete with "start session" / "complete". */
+        .action-btn.btn-danger { background: var(--surface); color: var(--accent); border: 1px solid var(--border-strong); }
+        .action-btn.btn-danger:active { background: var(--accent-dim); }
 
-        .sticky-timer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid var(--border); display: none; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+        .sticky-timer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface-glass); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid var(--rule); display: none; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .timer-info { display: flex; flex-direction: column; }
         .timer-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         .timer-display { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; margin-top: 4px;}
@@ -159,41 +197,91 @@
     </div>
 
     <script>
+        /* Iconography: one hand-drawn glyph set on a 24x24 grid with a 2px
+           stroke. Each path uses currentColor, so a glyph inherits the colour of
+           whatever badge contains it. These ids are what every exercise's
+           `glyph` field points at - change an id here and every use updates. */
+        const GLYPHS = {
+            mobility: '<path d="M12 20.5V4"/><path d="M8.4 7.6L12 4l3.6 3.6"/><path d="M15.6 16.9L12 20.5l-3.6-3.6"/>',
+            hinge:    '<path d="M4 6.5h7.5c3 0 4.5 2 4.5 4.5v7"/><path d="M12.6 15.4L16 18.8l3.4-3.4"/>',
+            pull:     '<path d="M4.5 5v14"/><path d="M20 12H11"/><path d="M14 8.5L10.5 12L14 15.5"/>',
+            rotation: '<circle cx="12" cy="12" r="6.5"/><path d="M12 12l4.6-4.6"/>',
+            raise:    '<path d="M12 20.5v-6.5"/><path d="M12 14L6 5.5"/><path d="M12 14l6-8.5"/>',
+            carry:    '<path d="M5 10.5h14v9H5z"/><path d="M9 10.5V8.6"/><path d="M15 10.5V8.6"/><path d="M9 8.6Q12 5.4 15 8.6"/>',
+            lunge:    '<path d="M3 20.5h6v-5h6v-5h6"/>',
+            cold:     '<path d="M12 4v16"/><path d="M5.1 8l13.8 8"/><path d="M5.1 16l13.8-8"/>',
+            north:    '<path d="M3 9.5q2.2-3 4.4 0q2.2 3 4.4 0q2.2-3 4.4 0q2.2 3 4.4 0"/><path d="M3 15.5q2.2-3 4.4 0q2.2 3 4.4 0q2.2-3 4.4 0q2.2 3 4.4 0"/>',
+            plains:   '<path d="M19 5c0 7-4.5 11.5-11.5 11.5C7.5 9.5 12 5 19 5z"/><path d="M16.6 7.4L8 16"/>',
+            japan:    '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.4"/>',
+            persia:   '<path d="M5 20.5v-8.5C5 7.5 8 5 12 5C16 5 19 7.5 19 12v8.5"/><path d="M3 20.5h18"/>',
+            india:    '<path d="M12 5.5L19 19H5z"/>',
+            china:    '<path d="M12 3.5l4.5 6.5h-2.7l4.2 6H6l4.2-6H7.5z"/>',
+            russia:   '<circle cx="12" cy="15.4" r="5.2"/><path d="M8.8 8.8Q12 3.6 15.2 8.8"/>'
+        };
+
+        /* Accessible names for each glyph. Platform emoji announced as
+           "flag: Japan" or as a bare object name; these say what the badge
+           actually means. */
+        const GLYPH_LABELS = {
+            mobility: 'Mobility reset',
+            hinge: 'Hip hinge',
+            pull: 'Horizontal pull',
+            rotation: 'Rotation and swing',
+            raise: 'Shoulder raise',
+            carry: 'Loaded carry',
+            lunge: 'Single-leg step and lunge',
+            cold: 'Cold exposure',
+            north: 'Nordic tradition',
+            plains: 'Plains tradition',
+            japan: 'Japanese tradition',
+            persia: 'Persian tradition',
+            india: 'Indian tradition',
+            china: 'Chinese tradition',
+            russia: 'Russian tradition'
+        };
+
+        function glyph(id) {
+            const body = GLYPHS[id] || GLYPHS.mobility;
+            const label = GLYPH_LABELS[id] || '';
+            return `<svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${label}" focusable="false">${body}</svg>`;
+        }
+
+
         const exercises = {
-            reset: { id: "reset", title: "Kinetic Daily Reset", origin: "🧬", cues: "• 90-90 Hip Lift: 3x5 breaths<br>• Short-Foot: 2x20-30s/side<br>• Wall Angels: 2x10", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
-            shiko: { id: "shiko", title: "Shiko / Goblet Squat", origin: "🇯🇵", cues: "Primary squat + hip opening.", sets: 4, reps: 8, weight: 30 },
-            rdl: { id: "rdl", title: "KB RDL", origin: "⛓️", cues: "Hinge + glute dominance.", sets: 4, reps: 8, weight: 30 },
-            row_a: { id: "row_a", title: "1-Arm DB Row", origin: "💪", cues: "Horizontal pull.", sets: 4, reps: 8, weight: 25 },
-            mace_a: { id: "mace_a", title: "Mace 360 / 10-to-2", origin: "🇮🇷", cues: "Controlled rotation.", sets: 3, reps: 8, weight: 30, isOptional: true },
-            bethak: { id: "bethak", title: "Bethak", origin: "🇮🇳", cues: "High-rep squat.", sets: 4, reps: 25, weight: "BW" },
-            danda: { id: "danda", title: "Danda / Hindu Pushup", origin: "🇮🇳", cues: "Spinal wave + pressing strength.", sets: 4, reps: 15, weight: "BW" },
-            mace_flow: { id: "mace_flow", title: "Light Mace Flow", origin: "🌀", cues: "360 + halos + uppercuts.", sets: 3, reps: "60s", weight: 10, timeSecs: 60 },
-            yt_raise: { id: "yt_raise", title: "Y/T Raise", origin: "🪽", cues: "Simple upper back raise.", sets: 2, reps: 12, weight: "BW", isOptional: true },
-            carry: { id: "carry", title: "Suitcase Carry", origin: "🚶", cues: "Anti-lateral-flexion.", sets: 3, reps: "30m", weight: 30 },
-            stepup: { id: "stepup", title: "Step-Up / Split Squat", origin: "🦵", cues: "Unilateral leg strength.", sets: 3, reps: 8, weight: 25 },
-            row_c: { id: "row_c", title: "1-Arm DB Row", origin: "💪", cues: "Second weekly pull.", sets: 3, reps: 12, weight: 25 },
-            yijin_jing: { id: "yijin_jing", title: "Yijin Jing Postures", origin: "🇨🇳", cues: "Long-tension postures.", sets: 2, reps: "3 br", weight: "BW", isOptional: true },
-            persia_360: { id: "persia_360", title: "Heavy Mace 360°", origin: "🇮🇷", cues: "Trace a halo.", sets: 4, reps: 15, weight: 20 },
-            persia_10to2: { id: "persia_10to2", title: "Mace 10-to-2", origin: "🇮🇷", cues: "Draw a sword.", sets: 4, reps: 10, weight: 20 },
-            persia_flow: { id: "persia_flow", title: "Meel Flow Endurance", origin: "🇮🇷", cues: "Unbroken rhythm.", sets: 1, reps: "5m", weight: 10, isOptional: true, timeSecs: 300 },
-            india_danda: { id: "india_danda", title: "High-Volume Danda", origin: "🇮🇳", cues: "Pike → Dive → Scoop → Cobra.", sets: 1, reps: 50, weight: "BW" },
-            india_bethak: { id: "india_bethak", title: "High-Volume Bethak", origin: "🇮🇳", cues: "Rhythmic descent.", sets: 1, reps: 100, weight: "BW" },
-            india_hold: { id: "india_hold", title: "Earth Pit Isometric", origin: "🇮🇳", cues: "Low squat hold or plank.", sets: 1, reps: "60s", weight: "BW", isOptional: true, timeSecs: 60 },
-            russia_swing: { id: "russia_swing", title: "Hardstyle Swings", origin: "🇷🇺", cues: "10x10 EMOM.", sets: 10, reps: 10, weight: 30 },
-            russia_breath: { id: "russia_breath", title: "Systema Box Breathing", origin: "🇷🇺", cues: "4s Inhale, Hold, Exhale, Hold.", sets: 1, reps: "4m", weight: "BW", timeSecs: 240 },
-            russia_cossack: { id: "russia_cossack", title: "Cossack Squats", origin: "🇷🇺", cues: "Deep lateral lunges.", sets: 3, reps: 8, weight: "BW", isOptional: true },
-            japan_shiko: { id: "japan_shiko", title: "Ritual Shiko Stomps", origin: "🇯🇵", cues: "Stomp with purpose.", sets: 1, reps: 50, weight: "BW" },
-            japan_goblet: { id: "japan_goblet", title: "Dohyō Goblet Squat", origin: "🇯🇵", cues: "Root into the floor.", sets: 4, reps: 10, weight: 30 },
-            japan_teppo: { id: "japan_teppo", title: "Teppo (Post Strikes)", origin: "🇯🇵", cues: "Open palm strikes.", sets: 3, reps: 20, weight: "BW", isOptional: true },
-            china_zhan: { id: "china_zhan", title: "Zhan Zhuang", origin: "🇨🇳", cues: "Stand like a pine.", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
-            china_qigong: { id: "china_qigong", title: "Qigong Flow", origin: "🇨🇳", cues: "Cloud Hands.", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
-            china_hold: { id: "china_hold", title: "Isometric Split Stance", origin: "🇨🇳", cues: "Low split stance hold.", sets: 2, reps: "60s", weight: "BW", isOptional: true, timeSecs: 60 },
-            viking_carry: { id: "viking_carry", title: "Heavy Husafell/Sandbag", origin: "🌊", cues: "Awkward load to chest height.", sets: 4, reps: "30m", weight: 50 },
-            viking_farmer: { id: "viking_farmer", title: "Farmer's Walk", origin: "🌊", cues: "Grip strength.", sets: 3, reps: "40m", weight: 40 },
-            viking_cold: { id: "viking_cold", title: "Cold Exposure", origin: "❄️", cues: "Controlled stress adaptation.", sets: 1, reps: "2m", weight: "BW", isOptional: true, timeSecs: 120 },
-            apache_run: { id: "apache_run", title: "Nasal-Only Endurance", origin: "🪶", cues: "Breathe nasal only.", sets: 1, reps: "20m", weight: "BW", timeSecs: 1200 },
-            apache_crawl: { id: "apache_crawl", title: "Stealth Bear Crawl", origin: "🪶", cues: "Low to ground, silent.", sets: 3, reps: "20m", weight: "BW" },
-            apache_breath: { id: "apache_breath", title: "Temper Resilience", origin: "🪶", cues: "Post-endurance breath regulation.", sets: 1, reps: "3m", weight: "BW", isOptional: true, timeSecs: 180 }
+            reset: { id: "reset", title: "Kinetic Daily Reset", glyph: "mobility", cues: "• 90-90 Hip Lift: 3x5 breaths<br>• Short-Foot: 2x20-30s/side<br>• Wall Angels: 2x10", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
+            shiko: { id: "shiko", title: "Shiko / Goblet Squat", glyph: "japan", cues: "Primary squat + hip opening.", sets: 4, reps: 8, weight: 30 },
+            rdl: { id: "rdl", title: "KB RDL", glyph: "hinge", cues: "Hinge + glute dominance.", sets: 4, reps: 8, weight: 30 },
+            row_a: { id: "row_a", title: "1-Arm DB Row", glyph: "pull", cues: "Horizontal pull.", sets: 4, reps: 8, weight: 25 },
+            mace_a: { id: "mace_a", title: "Mace 360 / 10-to-2", glyph: "persia", cues: "Controlled rotation.", sets: 3, reps: 8, weight: 30, isOptional: true },
+            bethak: { id: "bethak", title: "Bethak", glyph: "india", cues: "High-rep squat.", sets: 4, reps: 25, weight: "BW" },
+            danda: { id: "danda", title: "Danda / Hindu Pushup", glyph: "india", cues: "Spinal wave + pressing strength.", sets: 4, reps: 15, weight: "BW" },
+            mace_flow: { id: "mace_flow", title: "Light Mace Flow", glyph: "rotation", cues: "360 + halos + uppercuts.", sets: 3, reps: "60s", weight: 10, timeSecs: 60 },
+            yt_raise: { id: "yt_raise", title: "Y/T Raise", glyph: "raise", cues: "Simple upper back raise.", sets: 2, reps: 12, weight: "BW", isOptional: true },
+            carry: { id: "carry", title: "Suitcase Carry", glyph: "carry", cues: "Anti-lateral-flexion.", sets: 3, reps: "30m", weight: 30 },
+            stepup: { id: "stepup", title: "Step-Up / Split Squat", glyph: "lunge", cues: "Unilateral leg strength.", sets: 3, reps: 8, weight: 25 },
+            row_c: { id: "row_c", title: "1-Arm DB Row", glyph: "pull", cues: "Second weekly pull.", sets: 3, reps: 12, weight: 25 },
+            yijin_jing: { id: "yijin_jing", title: "Yijin Jing Postures", glyph: "china", cues: "Long-tension postures.", sets: 2, reps: "3 br", weight: "BW", isOptional: true },
+            persia_360: { id: "persia_360", title: "Heavy Mace 360°", glyph: "persia", cues: "Trace a halo.", sets: 4, reps: 15, weight: 20 },
+            persia_10to2: { id: "persia_10to2", title: "Mace 10-to-2", glyph: "persia", cues: "Draw a sword.", sets: 4, reps: 10, weight: 20 },
+            persia_flow: { id: "persia_flow", title: "Meel Flow Endurance", glyph: "persia", cues: "Unbroken rhythm.", sets: 1, reps: "5m", weight: 10, isOptional: true, timeSecs: 300 },
+            india_danda: { id: "india_danda", title: "High-Volume Danda", glyph: "india", cues: "Pike → Dive → Scoop → Cobra.", sets: 1, reps: 50, weight: "BW" },
+            india_bethak: { id: "india_bethak", title: "High-Volume Bethak", glyph: "india", cues: "Rhythmic descent.", sets: 1, reps: 100, weight: "BW" },
+            india_hold: { id: "india_hold", title: "Earth Pit Isometric", glyph: "india", cues: "Low squat hold or plank.", sets: 1, reps: "60s", weight: "BW", isOptional: true, timeSecs: 60 },
+            russia_swing: { id: "russia_swing", title: "Hardstyle Swings", glyph: "russia", cues: "10x10 EMOM.", sets: 10, reps: 10, weight: 30 },
+            russia_breath: { id: "russia_breath", title: "Systema Box Breathing", glyph: "russia", cues: "4s Inhale, Hold, Exhale, Hold.", sets: 1, reps: "4m", weight: "BW", timeSecs: 240 },
+            russia_cossack: { id: "russia_cossack", title: "Cossack Squats", glyph: "russia", cues: "Deep lateral lunges.", sets: 3, reps: 8, weight: "BW", isOptional: true },
+            japan_shiko: { id: "japan_shiko", title: "Ritual Shiko Stomps", glyph: "japan", cues: "Stomp with purpose.", sets: 1, reps: 50, weight: "BW" },
+            japan_goblet: { id: "japan_goblet", title: "Dohyō Goblet Squat", glyph: "japan", cues: "Root into the floor.", sets: 4, reps: 10, weight: 30 },
+            japan_teppo: { id: "japan_teppo", title: "Teppo (Post Strikes)", glyph: "japan", cues: "Open palm strikes.", sets: 3, reps: 20, weight: "BW", isOptional: true },
+            china_zhan: { id: "china_zhan", title: "Zhan Zhuang", glyph: "china", cues: "Stand like a pine.", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
+            china_qigong: { id: "china_qigong", title: "Qigong Flow", glyph: "china", cues: "Cloud Hands.", sets: 1, reps: "5m", weight: "BW", timeSecs: 300 },
+            china_hold: { id: "china_hold", title: "Isometric Split Stance", glyph: "china", cues: "Low split stance hold.", sets: 2, reps: "60s", weight: "BW", isOptional: true, timeSecs: 60 },
+            viking_carry: { id: "viking_carry", title: "Heavy Husafell/Sandbag", glyph: "north", cues: "Awkward load to chest height.", sets: 4, reps: "30m", weight: 50 },
+            viking_farmer: { id: "viking_farmer", title: "Farmer's Walk", glyph: "north", cues: "Grip strength.", sets: 3, reps: "40m", weight: 40 },
+            viking_cold: { id: "viking_cold", title: "Cold Exposure", glyph: "cold", cues: "Controlled stress adaptation.", sets: 1, reps: "2m", weight: "BW", isOptional: true, timeSecs: 120 },
+            apache_run: { id: "apache_run", title: "Nasal-Only Endurance", glyph: "plains", cues: "Breathe nasal only.", sets: 1, reps: "20m", weight: "BW", timeSecs: 1200 },
+            apache_crawl: { id: "apache_crawl", title: "Stealth Bear Crawl", glyph: "plains", cues: "Low to ground, silent.", sets: 3, reps: "20m", weight: "BW" },
+            apache_breath: { id: "apache_breath", title: "Temper Resilience", glyph: "plains", cues: "Post-endurance breath regulation.", sets: 1, reps: "3m", weight: "BW", isOptional: true, timeSecs: 180 }
         };
 
         const workouts = {
@@ -261,7 +349,7 @@
             plannedExercises.forEach(exKey => {
                 const ex = exercises[exKey];
                 const optTag = ex.isOptional ? `<span class="preview-opt">OPTIONAL</span>` : '';
-                listHTML += `<li><span class="preview-origin">${ex.origin}</span><span><strong>${ex.title}</strong> &nbsp;<span style="color:var(--text-muted); font-size:0.85rem">${ex.sets}x${ex.reps}</span></span>${optTag}</li>`;
+                listHTML += `<li><span class="preview-origin">${glyph(ex.glyph)}</span><span><strong>${ex.title}</strong> &nbsp;<span style="color:var(--text-muted); font-size:0.85rem">${ex.sets}x${ex.reps}</span></span>${optTag}</li>`;
             });
             previewList.innerHTML = listHTML;
         }
@@ -277,7 +365,7 @@
                     list.innerHTML = localLogbook.map(w => 
                         `<div class="history-item">
                             <div><strong>${w.date}</strong> <br><span style="color:var(--text-muted)">${w.day}</span></div>
-                            <div style="text-align:right">${w.totalTime}<br><span style="color:var(--primary)">${w.activeTime}</span></div>
+                            <div style="text-align:right">${w.totalTime}<br><span style="color:var(--accent)">${w.activeTime}</span></div>
                         </div>`
                     ).reverse().join('');
                 }
@@ -410,7 +498,7 @@
 
             if (isResting) {
                 label.innerText = "Resting";
-                label.style.color = "var(--primary)";
+                label.style.color = "var(--accent)";
                 controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="stopRest()">Stop</button><button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="addRest(60)">+ 60s</button>`;
             } else {
                 label.innerText = "Workout Time";
@@ -454,7 +542,7 @@
                     <span class="adj-val" id="val-reps">${activeReps}</span>
                     <button class="adj-btn" onclick="${repFnP}">+</button>
                 </div>` :
-                `<span class="adj-val" style="font-size:1.1rem; color:var(--primary);">${ex.reps}</span>`;
+                `<span class="adj-val" style="font-size:1.1rem; color:var(--accent);">${ex.reps}</span>`;
 
             const weightHTML = typeof ex.weight === 'number' ?
                 `<div class="adj-controls">
@@ -462,7 +550,7 @@
                     <span class="adj-val" id="val-weight">${activeWeight}</span>
                     <button class="adj-btn" onclick="adjust('weight', 5)">+</button>
                 </div>` :
-                `<span class="adj-val" style="font-size:1.1rem; color:var(--primary);">${ex.weight}</span>`;
+                `<span class="adj-val" style="font-size:1.1rem; color:var(--accent);">${ex.weight}</span>`;
 
             const optionalBadge = ex.isOptional ? `<div class="badge-optional">Optional Finisher</div>` : '';
 
@@ -491,7 +579,7 @@
                             <h3 class="exercise-title">${ex.title}</h3>
                             ${optionalBadge}
                         </div>
-                        <span class="exercise-origin">${ex.origin}</span>
+                        <span class="exercise-origin">${glyph(ex.glyph)}</span>
                     </div>
 
                     <div class="adjuster-group">
@@ -583,7 +671,7 @@
             ).join('');
 
             container.innerHTML = `
-                <div class="card active" style="border-color: var(--primary)">
+                <div class="card active" style="border-color: var(--accent)">
                     <h3 style="margin-top:0; color:var(--text); font-size:1.8rem">Workout Logged ⚔️</h3>
                     <p style="color:var(--text-muted); font-size:0.9rem; margin-top:-10px;">Saved to internal logbook.</p>
 
@@ -594,7 +682,7 @@
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Active Time</div>
-                            <div class="stat-value" style="color:var(--primary)">${fmt(finalActiveSecs)}</div>
+                            <div class="stat-value" style="color:var(--accent)">${fmt(finalActiveSecs)}</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Rest Time</div>
