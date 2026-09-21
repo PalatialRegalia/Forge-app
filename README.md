@@ -43,6 +43,8 @@ forge-app/
 ├── index.html      # Single-page app: markup, styles, and logic
 ├── manifest.json   # PWA manifest (name, icons, display, theme colors)
 ├── icon.svg        # PWA / favicon / apple-touch-icon (SVG)
+├── docs/
+│   └── design-references.md   # UI/UX reference library and polish shortlist
 ├── .gitignore
 ├── LICENSE         # MIT
 ├── CONTRIBUTING.md
@@ -114,6 +116,10 @@ This is a static site. Deploy the files as-is to any static host:
 - **S3 / CloudFront** — upload the files and set cache headers.
 
 No server-side code, no build, no environment variables.
+
+## Design notes
+
+Research on the visual and icon direction lives in [`docs/design-references.md`](docs/design-references.md). It covers the "AK-47 ethos" decoded into testable principles, a reference library of projects that combine excellent UI/UX with that ethos (GOV.UK, Rams, Gymboss, Concept2 PM5, Health Icons, Game Icons, Met/Smithsonian Open Access), measured contrast ratios for the current colour tokens, and a concrete polish shortlist.
 
 ## Author
 
