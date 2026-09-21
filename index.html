@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Forge">
-    <meta name="theme-color" content="#111111">
+    <meta name="theme-color" content="#0a0a0a">
 
     <link rel="icon" type="image/svg+xml" href="icon.svg">
     <link rel="apple-touch-icon" href="icon.svg">
@@ -41,27 +41,58 @@
             --optional: #ffb703;
             --on-optional: #0a0a0a;
 
-            /* Translucent surface for the sticky timer, and the single shadow
-               colour used by the primary buttons. */
+            /* Translucent surface for the sticky timer. */
             --surface-glass: rgba(28, 28, 30, 0.95);
-            --action-glow: rgba(193, 18, 31, 0.35);
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+            /* Ink for the one texture layer. Measured against --surface: with
+               it, body text is 14.6:1 and muted text 7.8:1, both still AAA. */
+            --texture-ink: rgba(255, 255, 255, 0.022);
+
+            /* Geometry: one radius scale, three steps. Tighter than the mixed
+               4/6/8/10/12/16px it replaces - a tool, not a consumer app. */
+            --radius-xs: 4px;         /* badges, progress track */
+            --radius-sm: 6px;         /* small controls */
+            --radius-md: 8px;         /* panels, cards, primary buttons */
+
+            /* Type: one seven-step scale plus a display size for the timer, in
+               place of the sixteen ad-hoc sizes it replaces. */
+            --fs-xs: 0.7rem;          /* labels, badges */
+            --fs-sm: 0.8rem;          /* secondary text */
+            --fs-base: 0.9rem;        /* body */
+            --fs-md: 1rem;            /* primary body, controls */
+            --fs-lg: 1.2rem;          /* buttons, headings */
+            --fs-xl: 1.5rem;          /* exercise titles */
+            --fs-display: 3rem;       /* the session timer */
         }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 100px; user-select: none; }
+        body { margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 100px; touch-action: manipulation; }
 
-        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--rule); background: var(--surface); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        /* Touch targets: every control clears 48px on its shortest side so it can
+           be hit with a thumb, a glove, or a shaky hand mid-set. WCAG 2.5.8 asks
+           for 24px; this is deliberately double. `touch-action: manipulation`
+           kills the double-tap-to-zoom delay without disabling pinch-zoom. */
+        button, select, .adj-btn { min-height: 48px; touch-action: manipulation; }
+        /* Selection stays available for text worth copying - cue lines, the
+           session summary - and is disabled only on controls, which have
+           nothing to copy. */
+        button, select { user-select: none; -webkit-user-select: none; }
+
+        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--rule); background: var(--surface); background-image: repeating-linear-gradient(135deg, var(--texture-ink) 0 1px, transparent 1px 7px); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .header-icon { width: 24px; height: 24px; }
-        header h2 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; }
-        .progress-indicator { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+        /* Absolutely positioned so it does not disturb the centred wordmark.
+           Muted colour: it is a preference, not a call to action. */
+        .sound-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; padding: 0; background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .sound-toggle .glyph { width: 22px; height: 22px; }
+        header h2 { margin: 0; font-size: var(--fs-lg); letter-spacing: 1px; text-transform: uppercase; }
+        .progress-indicator { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px; }
 
         .controls { display: flex; flex-direction: column; gap: 15px; padding: 20px; align-items: center; }
-        select { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); padding: 14px; border-radius: 8px; font-size: 1.05rem; width: 100%; max-width: 400px; outline: none; appearance: none; text-align: center; font-weight: 600; }
-        .category-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -5px; }
+        select { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); padding: 14px; border-radius: var(--radius-sm); font-size: var(--fs-md); width: 100%; max-width: 400px; outline: none; appearance: none; text-align: center; font-weight: 600; }
+        .category-label { font-size: var(--fs-sm); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -5px; }
 
-        .preview-container { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 15px; margin-top: -5px; }
-        .preview-title { font-size: 0.8rem; color: var(--accent); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;}
-        .preview-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; color: var(--text-muted); }
+        .preview-container { background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 15px; margin-top: -5px; }
+        .preview-title { font-size: var(--fs-sm); color: var(--accent); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; letter-spacing: 0.5px;}
+        .preview-list { list-style: none; padding: 0; margin: 0; font-size: var(--fs-md); color: var(--text-muted); }
         .preview-list li { margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; }
         /* Iconography ------------------------------------------------------
            One hand-drawn glyph set: 24px grid, 2px stroke, currentColor, no
@@ -70,69 +101,82 @@
            and several combinations degraded to tofu on older Android. */
         .glyph { display: block; width: 100%; height: 100%; }
         .preview-origin { display: block; width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--text-muted); }
-        .preview-opt { font-size: 0.7rem; background: var(--optional); color: var(--on-optional); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: auto; }
+        .preview-opt { font-size: var(--fs-xs); background: var(--optional); color: var(--on-optional); padding: 2px 6px; border-radius: var(--radius-xs); font-weight: bold; margin-left: auto; }
 
-        .btn-start-workout { background: var(--action); color: var(--on-action); border: none; padding: 16px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; width: 100%; max-width: 400px; cursor: pointer; box-shadow: 0 4px 15px var(--action-glow); transition: transform 0.1s; margin-top: 5px; }
+        .btn-start-workout { background: var(--action); color: var(--on-action); border: none; padding: 16px; border-radius: var(--radius-md); font-size: var(--fs-lg); font-weight: bold; width: 100%; max-width: 400px; cursor: pointer; transition: transform 0.1s; margin-top: 5px; }
         .btn-start-workout:active { transform: scale(0.97); }
 
         .card-container { padding: 15px; max-width: 500px; margin: 0 auto; display: none; }
-        .card { background: var(--surface); border-radius: 16px; padding: 24px; display: none; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .card { background: var(--surface); border-radius: var(--radius-md); padding: 24px; display: none; border: 1px solid var(--border); position: relative; overflow: hidden; }
         .card.active { display: block; animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
 
+        /* Imagery -----------------------------------------------------------
+           The app ships no raster images: a photo is dead weight offline and a
+           licensing obligation. Identity comes from two vector layers instead,
+           both measured so they cannot erode text contrast. */
+        /* A large ghost of the day's glyph, clipped by the card itself. */
+        .card-watermark { position: absolute; right: -24px; bottom: -24px; width: 200px; height: 200px; color: var(--text); opacity: 0.055; pointer-events: none; }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 0; color: var(--text-muted); text-align: center; }
+        .empty-mark { width: 44px; height: 44px; opacity: 0.6; }
+
         /* Progress Bar for Time-Based Exercises */
-        .ex-progress-bg { display: none; background: var(--bg); height: 12px; border-radius: 6px; margin-top: 15px; overflow: hidden; border: 1px solid var(--border-strong); }
+        .ex-progress-bg { display: none; background: var(--bg); height: 12px; border-radius: var(--radius-xs); margin-top: 15px; overflow: hidden; border: 1px solid var(--border-strong); }
         .ex-progress-fill { background: var(--action); height: 100%; width: 0%; transition: width 0.5s linear; }
         .ex-progress-controls { display: none; align-items: center; justify-content: space-between; margin-top: 10px; }
-        .ex-progress-time { font-size: 1.2rem; font-weight: bold; font-variant-numeric: tabular-nums; }
-        .ex-progress-btn { background: var(--surface); border: 1px solid var(--border-strong); color: var(--text); padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .ex-progress-time { font-size: var(--fs-lg); font-weight: bold; font-variant-numeric: tabular-nums; }
+        .ex-progress-btn { background: var(--surface); border: 1px solid var(--border-strong); color: var(--text); padding: 8px 16px; border-radius: var(--radius-sm); font-weight: bold; cursor: pointer; }
 
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .exercise-title { margin: 0; font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
-        .badge-optional { background: var(--optional); color: var(--on-optional); font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; align-self: flex-start; margin-top: 6px;}
-        .exercise-origin { display: block; width: 30px; height: 30px; padding: 8px; background: var(--bg); border-radius: 12px; color: var(--text); border: 1px solid var(--border); }
+        .exercise-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; line-height: 1.2; }
+        .badge-optional { background: var(--optional); color: var(--on-optional); font-size: var(--fs-xs); padding: 3px 8px; border-radius: var(--radius-xs); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; align-self: flex-start; margin-top: 6px;}
+        .exercise-origin { display: block; width: 30px; height: 30px; padding: 8px; background: var(--bg); border-radius: var(--radius-md); color: var(--text); border: 1px solid var(--border); }
 
         .adjuster-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .adjuster { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); }
-        .adj-label { font-weight: 600; color: var(--text-muted); width: 60px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;}
+        .adjuster { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 8px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+        .adj-label { font-weight: 600; color: var(--text-muted); width: 60px; text-transform: uppercase; font-size: var(--fs-base); letter-spacing: 0.5px;}
         .adj-controls { display: flex; align-items: center; gap: 15px; }
-        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); width: 44px; height: 44px; border-radius: 10px; font-size: 1.5rem; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+        .adj-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); width: 48px; height: 48px; border-radius: var(--radius-sm); font-size: var(--fs-xl); font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
         .adj-btn:active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
-        .adj-val { font-size: 1.4rem; font-weight: 700; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
+        .adj-val { font-size: var(--fs-xl); font-weight: 700; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
 
-        .cues { background: var(--bg); padding: 16px; border-radius: 12px; font-size: 1rem; line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--action); margin-top: 15px; }
+        .cues { background: var(--bg); padding: 16px; border-radius: var(--radius-md); font-size: var(--fs-md); line-height: 1.5; color: var(--text-muted); border-left: 4px solid var(--action); margin-top: 15px; }
 
         .actions { display: flex; gap: 12px; margin-top: 24px; }
-        button.action-btn { flex: 1; padding: 18px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+        button.action-btn { flex: 1; padding: 18px; border: none; border-radius: var(--radius-md); font-size: var(--fs-lg); font-weight: 600; cursor: pointer; transition: transform 0.1s; }
         button.action-btn:active { transform: scale(0.97); }
         /* Note the two-class selector: a bare `.btn-skip` loses the border to
            `button.action-btn { border: none }` on specificity, which is why the
            Skip button rendered borderless before. */
         .action-btn.btn-skip { background: var(--bg); color: var(--text); border: 1px solid var(--border-strong); }
-        .btn-done { background: var(--action); color: var(--on-action); box-shadow: 0 4px 15px var(--action-glow); }
+        .btn-done { background: var(--action); color: var(--on-action); }
 
         /* History & Export UI */
         .history-container { max-width: 500px; margin: 10px auto; padding: 0 15px; display: none; }
-        .history-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border-strong); padding: 16px; border-radius: 12px; width: 100%; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
-        .history-list { background: var(--surface); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 20px; font-size: 0.9rem; max-height: 300px; overflow-y: auto;}
+        .history-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border-strong); padding: 16px; border-radius: var(--radius-md); width: 100%; font-size: var(--fs-md); font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .history-list { background: var(--surface); border-radius: var(--radius-md); padding: 15px; border: 1px solid var(--border); margin-bottom: 20px; font-size: var(--fs-base); max-height: 300px; overflow-y: auto;}
         .history-item { padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; }
         .history-item:last-child { border-bottom: none; }
-        .btn-export { background: var(--surface); color: var(--text); width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 600; border: 1px solid var(--border-strong); cursor: pointer;}
+        .btn-export { background: var(--surface); color: var(--text); width: 100%; padding: 16px; border-radius: var(--radius-md); font-size: var(--fs-lg); font-weight: 600; border: 1px solid var(--border-strong); cursor: pointer;}
         /* Destructive action: red ink on a neutral body. Reserving the red fill
            for the single primary action keeps "danger" legible without letting
            it compete with "start session" / "complete". */
-        .action-btn.btn-danger { background: var(--surface); color: var(--accent); border: 1px solid var(--border-strong); }
+        .action-btn.btn-danger { background: var(--surface); color: var(--accent); border: 1px solid var(--border-strong); width: 100%; }
         .action-btn.btn-danger:active { background: var(--accent-dim); }
+        /* Destroying the logbook is irreversible, so it gets its own space below
+           a rule - a mis-tap while reaching for "export" cannot reach it. */
+        .history-danger { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule); }
 
         .sticky-timer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface-glass); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid var(--rule); display: none; justify-content: space-between; align-items: center; z-index: 100; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .timer-info { display: flex; flex-direction: column; }
-        .timer-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .timer-display { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; margin-top: 4px;}
+        .timer-label { font-size: var(--fs-sm); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .timer-display { font-size: var(--fs-display); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; margin-top: 4px;}
         .timer-controls { display: flex; gap: 8px; }
 
         .summary-stats { display: flex; gap: 10px; margin: 20px 0; text-align: center; }
-        .stat-box { flex: 1; background: var(--bg); padding: 12px 5px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .stat-value { font-size: 1.2rem; font-weight: bold; }
+        .stat-box { flex: 1; background: var(--bg); padding: 12px 5px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+        .stat-label { font-size: var(--fs-xs); color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .stat-value { font-size: var(--fs-lg); font-weight: bold; }
 
         @keyframes slideIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
@@ -140,11 +184,12 @@
 <body>
 
     <header>
-        <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23111111'%20rx='112'/%3E%3Cpath%20d='M280%2080L120%20280h100v152l172-232h-112L280%2080z'%20fill='%23e63946'/%3E%3C/svg%3E" class="header-icon" alt="Forge Icon">
+        <img src="icon.svg" class="header-icon" alt="">
         <div>
             <h2>FORGE KINETIC</h2>
             <div class="progress-indicator" id="progressIndicator">Awaiting Start</div>
         </div>
+        <button class="sound-toggle" id="soundToggle" type="button" onclick="toggleSound()" aria-pressed="true" aria-label="Cue sound on"></button>
     </header>
 
     <div class="controls" id="topControls">
@@ -180,7 +225,9 @@
         <div id="historyPanel" style="display: none;">
             <div class="history-list" id="historyList"></div>
             <button class="btn-export" onclick="exportFullHistoryCSV()">Export All Data to CSV</button>
-            <button class="action-btn btn-skip" style="width:100%; margin-top:10px; padding: 12px; font-size: 0.9rem;" onclick="clearHistory()">Wipe Logbook</button>
+            <div class="history-danger">
+                <button class="action-btn btn-danger" onclick="clearHistory()">Wipe Logbook</button>
+            </div>
         </div>
     </div>
 
@@ -192,7 +239,7 @@
             <span class="timer-display" id="timeDisplay">00:00</span>
         </div>
         <div class="timer-controls" id="timerControls">
-            <button class="action-btn btn-skip" style="padding: 12px 20px; font-size:1rem;" onclick="addRest(60)">Rest 60s</button>
+            <button class="action-btn btn-skip" style="padding: 12px 20px; font-size: var(--fs-md);" onclick="addRest(60)">Rest 60s</button>
         </div>
     </div>
 
@@ -216,7 +263,9 @@
             persia:   '<path d="M5 20.5v-8.5C5 7.5 8 5 12 5C16 5 19 7.5 19 12v8.5"/><path d="M3 20.5h18"/>',
             india:    '<path d="M12 5.5L19 19H5z"/>',
             china:    '<path d="M12 3.5l4.5 6.5h-2.7l4.2 6H6l4.2-6H7.5z"/>',
-            russia:   '<circle cx="12" cy="15.4" r="5.2"/><path d="M8.8 8.8Q12 3.6 15.2 8.8"/>'
+            russia:   '<circle cx="12" cy="15.4" r="5.2"/><path d="M8.8 8.8Q12 3.6 15.2 8.8"/>',
+            soundOn:  '<path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"/><path d="M15 9.5q2.5 2.5 0 5"/><path d="M18 6.5q3.5 5.5 0 11"/>',
+            soundOff: '<path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"/><path d="M16 9.5l5 5"/><path d="M21 9.5l-5 5"/>'
         };
 
         /* Accessible names for each glyph. Platform emoji announced as
@@ -237,7 +286,9 @@
             persia: 'Persian tradition',
             india: 'Indian tradition',
             china: 'Chinese tradition',
-            russia: 'Russian tradition'
+            russia: 'Russian tradition',
+            soundOn: 'Cue sound on',
+            soundOff: 'Cue sound off'
         };
 
         function glyph(id) {
@@ -321,6 +372,80 @@
         let wakeLock = null;
         let localLogbook = [];
 
+        /* Offline: the app is three files, so the shell is cached whole and a
+           page load prefers the network. That keeps "open it offline" working
+           without ever pinning a user to a stale index.html. Requires HTTPS or
+           localhost; silently does nothing otherwise, exactly like a browser
+           that does not support it. */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+
+        /* ---- Cue sound -----------------------------------------------------
+           Audio needs a user gesture to unlock on iOS, so the context is created
+           on the "Start Session" tap rather than at load. Muting is remembered,
+           because a training app that beeps with no off switch is hostile. */
+        let soundEnabled = localStorage.getItem('forgeSound') !== 'off';
+        let audioCtx = null;
+
+        function unlockAudio() {
+            if (audioCtx) return;
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            try {
+                audioCtx = new Ctx();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch (e) { audioCtx = null; }
+        }
+
+        /* Three short square-wave blips. Square is deliberate: it cuts through
+           gym noise far better than a sine, at the cost of sounding like a tool
+           rather than an app. */
+        function beep(times) {
+            if (!audioCtx || !soundEnabled) return;
+            const t0 = audioCtx.currentTime;
+            for (let i = 0; i < times; i++) {
+                const t = t0 + i * 0.24;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.0001, t);
+                gain.gain.exponentialRampToValueAtTime(0.25, t + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.18);
+            }
+        }
+
+        /* An interval boundary fires both channels on purpose: a beep is missed
+           over noise, a vibration is missed through a case. If one fails in the
+           environment, the other still lands. */
+        function cue(times, vibratePattern) {
+            beep(times);
+            if (navigator.vibrate) navigator.vibrate(vibratePattern);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('forgeSound', soundEnabled ? 'on' : 'off');
+            renderSoundToggle();
+            if (soundEnabled) { unlockAudio(); cue(1, 40); }
+        }
+
+        function renderSoundToggle() {
+            const btn = document.getElementById('soundToggle');
+            btn.innerHTML = glyph(soundEnabled ? 'soundOn' : 'soundOff');
+            btn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+            btn.setAttribute('aria-label', soundEnabled
+                ? 'Cue sound on. Activate to mute.'
+                : 'Cue sound off. Activate to unmute.');
+        }
+
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
@@ -336,6 +461,7 @@
                 } catch(e) { localLogbook = []; }
             }
             document.getElementById('historyContainer').style.display = 'block';
+            renderSoundToggle();
             updatePreview(); 
         }
 
@@ -349,7 +475,7 @@
             plannedExercises.forEach(exKey => {
                 const ex = exercises[exKey];
                 const optTag = ex.isOptional ? `<span class="preview-opt">OPTIONAL</span>` : '';
-                listHTML += `<li><span class="preview-origin">${glyph(ex.glyph)}</span><span><strong>${ex.title}</strong> &nbsp;<span style="color:var(--text-muted); font-size:0.85rem">${ex.sets}x${ex.reps}</span></span>${optTag}</li>`;
+                listHTML += `<li><span class="preview-origin">${glyph(ex.glyph)}</span><span><strong>${ex.title}</strong> &nbsp;<span style="color:var(--text-muted); font-size: var(--fs-base)">${ex.sets}x${ex.reps}</span></span>${optTag}</li>`;
             });
             previewList.innerHTML = listHTML;
         }
@@ -360,7 +486,7 @@
             if (panel.style.display === 'none') {
                 panel.style.display = 'block';
                 if (localLogbook.length === 0) {
-                    list.innerHTML = "<div style='color:var(--text-muted); text-align:center;'>No completed workouts yet.</div>";
+                    list.innerHTML = `<div class="empty-state"><img class="empty-mark" src="icon.svg" alt=""><span>No completed workouts yet.</span></div>`;
                 } else {
                     list.innerHTML = localLogbook.map(w => 
                         `<div class="history-item">
@@ -397,6 +523,7 @@
             clearInterval(timerInterval);
             timerInterval = setInterval(onTick, 100); // Faster tick for progress bar smoothness
 
+            unlockAudio();   // the start tap is the gesture iOS needs
             requestWakeLock();
             renderCurrentCard();
         }
@@ -457,7 +584,7 @@
                     isResting = false;
                     currentRestStartMs = 0;
                     currentRestTargetMs = 0;
-                    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    cue(2, [200, 100, 200]);   // rest is over
                     renderMasterTimerUI(0);
                 } else {
                     renderMasterTimerUI(timeLeft / 1000);
@@ -483,7 +610,7 @@
                 if (remaining === 0) {
                     isExTimerRunning = false;
                     document.getElementById('exTimerBtn').innerText = "Done";
-                    if(navigator.vibrate) navigator.vibrate([300, 200, 300]);
+                    cue(3, [300, 200, 300]);   // timed interval finished
                 }
             }
         }
@@ -499,11 +626,11 @@
             if (isResting) {
                 label.innerText = "Resting";
                 label.style.color = "var(--accent)";
-                controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="stopRest()">Stop</button><button class="action-btn btn-skip" style="padding: 12px; font-size:0.9rem;" onclick="addRest(60)">+ 60s</button>`;
+                controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px; font-size: var(--fs-base);" onclick="stopRest()">Stop</button><button class="action-btn btn-skip" style="padding: 12px; font-size: var(--fs-base);" onclick="addRest(60)">+ 60s</button>`;
             } else {
                 label.innerText = "Workout Time";
                 label.style.color = "var(--text-muted)";
-                controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px 20px; font-size:1rem;" onclick="addRest(60)">Rest 60s</button>`;
+                controls.innerHTML = `<button class="action-btn btn-skip" style="padding: 12px 20px; font-size: var(--fs-md);" onclick="addRest(60)">Rest 60s</button>`;
             }
         }
 
@@ -542,7 +669,7 @@
                     <span class="adj-val" id="val-reps">${activeReps}</span>
                     <button class="adj-btn" onclick="${repFnP}">+</button>
                 </div>` :
-                `<span class="adj-val" style="font-size:1.1rem; color:var(--accent);">${ex.reps}</span>`;
+                `<span class="adj-val" style="font-size: var(--fs-lg); color:var(--accent);">${ex.reps}</span>`;
 
             const weightHTML = typeof ex.weight === 'number' ?
                 `<div class="adj-controls">
@@ -550,7 +677,7 @@
                     <span class="adj-val" id="val-weight">${activeWeight}</span>
                     <button class="adj-btn" onclick="adjust('weight', 5)">+</button>
                 </div>` :
-                `<span class="adj-val" style="font-size:1.1rem; color:var(--accent);">${ex.weight}</span>`;
+                `<span class="adj-val" style="font-size: var(--fs-lg); color:var(--accent);">${ex.weight}</span>`;
 
             const optionalBadge = ex.isOptional ? `<div class="badge-optional">Optional Finisher</div>` : '';
 
@@ -639,6 +766,27 @@
             renderCurrentCard();
         }
 
+        /* The day's signature glyph for the summary watermark. Most-used glyph
+           wins, because a heritage day repeats its tradition three times. On a
+           tie a pattern beats a tradition - Day A inherits the Japanese ring
+           from the shared Shiko squat, and a ring on a strength day would
+           misdescribe the session. */
+        const TRADITION_GLYPHS = ['persia', 'india', 'japan', 'china', 'russia', 'north', 'plains'];
+
+        function dayGlyphId() {
+            const counts = {};
+            currentWorkout.forEach(key => {
+                const id = exercises[key].glyph;
+                if (id !== 'mobility') counts[id] = (counts[id] || 0) + 1;
+            });
+            const ids = Object.keys(counts);
+            if (ids.length === 0) return 'mobility';
+            return ids.sort((a, b) =>
+                (counts[b] - counts[a]) ||
+                (TRADITION_GLYPHS.includes(a) - TRADITION_GLYPHS.includes(b))
+            )[0];
+        }
+
         function renderSummaryCard(container) {
             if (isResting) stopRest(); 
             clearInterval(timerInterval); 
@@ -672,8 +820,9 @@
 
             container.innerHTML = `
                 <div class="card active" style="border-color: var(--accent)">
-                    <h3 style="margin-top:0; color:var(--text); font-size:1.8rem">Workout Logged ⚔️</h3>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:-10px;">Saved to internal logbook.</p>
+                    <div class="card-watermark">${glyph(dayGlyphId())}</div>
+                    <h3 style="margin-top:0; color:var(--text); font-size: var(--fs-xl)">Workout Logged</h3>
+                    <p style="color:var(--text-muted); font-size: var(--fs-base); margin-top:-10px;">Saved to internal logbook.</p>
 
                     <div class="summary-stats">
                         <div class="stat-box">

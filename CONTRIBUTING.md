@@ -24,6 +24,7 @@ Thanks for your interest in Forge Kinetic. This is a small, dependency-free PWA,
 - **Colour comes from the tokens in `:root`** — no literal colours in component rules. Each token carries its measured contrast ratio in a comment; text needs 4.5:1, and large numerals and control edges need 3:1. If you add a value, measure it and note the number.
 - **Icons go in the `GLYPHS` object**: 24×24 grid, 2 px stroke, round caps and joins, `currentColor`, no fills. Add a matching entry to `GLYPH_LABELS` for screen readers, then run `python3 tools/glyph-preview.py` and confirm the shape still reads at 16 px.
 - Remember that anything loaded over the network is unavailable offline, which is the app's main promise.
+- If you change `index.html`, `manifest.json` or `icon.svg`, bump `CACHE` in `sw.js`. Those three files are precached, so without a bump the offline copy stays stale.
 
 ## Submitting a change
 

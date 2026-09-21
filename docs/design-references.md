@@ -354,13 +354,40 @@ Incidental accessibility win: emoji announced as "flag: Japan"; each glyph now c
 
 **How it was verified.** A throwaway stdlib renderer (SVG path → distance-field stroke → PNG) rasterized the glyphs at 24 px and 96 px so they could actually be looked at rather than guessed at. Four shapes failed to read on first render and were redrawn: a concentric-ring-with-ticks read as a *pause button*, a dumbbell read as the letter **H**, a diagonal staff read as a **prohibition slash**, and a chevron-plus-dot read as a **downward arrow**. `tools/glyph-preview.py` regenerates the contact sheet directly from `index.html`, so the check is repeatable without a browser, a build step, or a second copy of the data.
 
-### 8.3 Still open
+### 8.3 All seven moves now complete
 
-| Move | Status |
+| Move | Result |
 |---|---|
-| #1 Freeze the remaining tokens (one type scale, one radius) | open — radii still mix 8/10/12/16 px and the type scale still has ~15 steps |
-| #4 Big-number timer doctrine, audio + haptic cues | open |
-| #5 Ergonomics: re-enable pinch-zoom, drop global `user-select: none`, raise controls to ≥48 px | open — the two a11y defects in §3.3 are untouched |
-| #6 Harden the aesthetic: tighter radii, drop the glow shadows | open — the glows are still present and were only re-tinted |
-| #7 Imagery (SVG texture layer or CC0 heritage photography) | open |
+| #1 One type scale, one radius scale | 16 font sizes collapsed to 7 steps plus a display size; 6 radii to 3. 25 tokens in `:root`, with no colour or size literal anywhere else in the stylesheet |
+| #2 Contrast pass | done in the first pass (§8.1) |
+| #3 Glyph set | done in the first pass (§8.2) |
+| #4 Big-number timer and cues | timer numerals 2 rem → 3 rem and now the largest type in the app; an interval boundary fires a beep **and** a vibration; muting is a header control, persisted |
+| #5 Ergonomics | pinch-zoom restored; `user-select: none` narrowed to controls; every touch target ≥ 48 px; wipe-logbook moved below a rule |
+| #6 Depth removed | zero `box-shadow` in the stylesheet |
+| #7 Imagery | measured vector layer; no raster assets |
+
+### 8.4 What the second pass changed, and what it cost
+
+**Timer.** The session seconds were 2 rem; they are now 3 rem and the largest type on screen, inside a fixed bar that never moves. §5 asked for 3.5–4 rem. 3 rem is the compromise that keeps the sticky bar under about 100 px on a 360×640 phone, which matters more than the last 8 px of numeral — reported rather than quietly rounded off.
+
+**Cues.** `cue()` fires both channels on purpose: square-wave blips through WebAudio plus a vibration pattern. Square rather than sine because it cuts through gym noise, at the cost of sounding like a tool rather than an app. Audio is unlocked on the "Start Session" tap, since iOS requires a user gesture, and muting is remembered in `localStorage`. The harness asserts that a cue with sound on produces 2 oscillators and 1 vibration, and with sound off produces 0 and 1 — the duplication is the point, so it is tested.
+
+**Imagery.** No raster images, for three reasons: this environment cannot fetch or process binaries, a photo is dead weight offline, and CC0 photography still carries attribution and cultural-sensitivity work that a vector layer does not. Three layers instead, each measured so it cannot erode legibility:
+
+| Layer | Body text | Muted text | Verdict |
+|---|---|---|---|
+| Header hatch, 2.2% white | 14.6:1 | 7.8:1 | AAA |
+| Card watermark, 5.5% white | 13.4:1 | 7.2:1 | AAA |
+| Nothing at all (baseline) | 15.5:1 | 8.3:1 | AAA |
+
+**The watermark rule.** The day's signature glyph is the *most used* glyph that is not the shared mobility reset, and on a tie a movement pattern beats a tradition mark. Without that tie-break, Day A would show the Japanese ring, inherited from the Shiko squat it shares with the Japan day — a ring watermark on a strength day would misdescribe the session.
+
+**Cost.** `index.html` went 38 KB → 51 KB across both passes. That is a real increase against the smallest-payload principle, and the honest accounting is: 4.7 KB of glyphs, roughly 5 KB of explanatory comments (which are the point of an inspectable single-file app), and the rest is the audio engine, the service-worker registration and the imagery rules. Nothing added requires a network request, and the file remains smaller than a single mid-size photograph.
+
+### 8.5 Two defects found that were not on the shortlist
+
+1. **Skip had never been bordered.** `button.action-btn { border: none }` outspecifies a bare `.btn-skip`, so that rule's border had been dead since it was written. Fixed with a two-class selector.
+2. **The README claimed offline support "via service worker" and no service worker existed.** The app's headline promise was unsupported: installed to a home screen, it would not reliably open without a connection. `sw.js` now precaches the three shell files, serves page loads network-first (so nobody is pinned to a stale build) and cache-first for the icon and manifest.
+
+The first of those also means the previous commit message described the wipe button as "red ink on a neutral body" while it was still rendering neutral — the edit meant to change it had errored silently. Both are correct now, and both were caught by re-reading the file rather than trusting that an edit had applied.
 
